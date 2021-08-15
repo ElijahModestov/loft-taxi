@@ -16,7 +16,7 @@ const HeaderContainer = styled.div`
 const Header = ({navItems, onPageChange}) => {
   return (
     <HeaderContainer>
-      <LogoContainer/>
+      <LogoContainer rowView={true}/>
       <NavContainer navItems={navItems} onPageChange={onPageChange}/>
     </HeaderContainer>
   );

@@ -1,29 +1,38 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 import logo_primary from '../../assets/logo_primary.svg';
 import logo_secondary from '../../assets/logo_secondary.svg';
 
-const LogoBox = styled.div`
-  display: flex;
-  align-items: center;
+const LogoSecondary = styled.img`
+    width: 196px;
+    height: 36px;
 `;
+
+const LogoBox = styled.div`
+    display: flex;
+    align-items: center;
+    ${props => !props.rowView && css`
+      flex-direction: column;
+    `}
+  `;
 
 const LogoPrimary = styled.img`
-  margin: 0 16px 0 0;
-  width: 66px;
-  height: 66px;
-`;
+    ${props => props.rowView ? css`
+      margin: 0 16px 0 0;
+      width: 61px;
+      height: 61px;`
+  : css`
+      margin: 0 0 22px 0;
+      width: 136px;
+      height: 136px;`
+}
+  `;
 
-const LogoSecondary = styled.img`
-  width: 196px;
-  height: 25px;
-`;
-
-const LogoContainer = (className) => {
+const LogoContainer = ({ rowView = false }) => {
   return (
-    <LogoBox className={className}>
-      <LogoPrimary src={logo_primary} alt="logo primary"/>
+    <LogoBox rowView={rowView}>
+      <LogoPrimary src={logo_primary} rowView={rowView} alt="logo primary"/>
       <LogoSecondary src={logo_secondary} alt="logo secondary"/>
     </LogoBox>
   )

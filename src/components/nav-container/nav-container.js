@@ -24,17 +24,21 @@ const NavItem = styled.li`
 
 const NavContainer = ({ navItems, onPageChange }) => {
   const elements = navItems.map((item) => {
-    const { id, label, isActive } = item;
+    const { id, label, isActive, showHeader } = item;
 
     return (
-      <NavItem key={id} active={isActive} onClick={() => onPageChange(id)}>{ label }</NavItem>
+      <NavItem key={id}
+               active={isActive}
+               onClick={() => onPageChange(id, showHeader)}>
+        { label }
+      </NavItem>
     );
   });
 
   return (
     <NavList>
       { elements }
-      <NavItem>Выйти</NavItem>
+      <NavItem onClick={() => onPageChange(1, false)}>Выйти</NavItem>
     </NavList>
   );
 }
