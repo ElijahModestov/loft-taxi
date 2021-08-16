@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { createGlobalStyle } from 'styled-components';
 
-import Header from './components/header';
-import LoginPage from './components/pages/login';
-import MapPage from './components/pages/map';
-import ProfilePage from './components/pages/profile';
+import Header from './components/Header';
+import LoginPage from './components/Pages/Login';
+import MapPage from './components/Pages/Map';
+import ProfilePage from './components/Pages/Profile';
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -43,10 +43,11 @@ export default class App extends Component {
     let ActivePageComponent;
     switch (this.state.activePageId) {
       case 1:
-        ActivePageComponent = <LoginPage onPageChange={this.onPageChange}/>;
+        ActivePageComponent = <LoginPage onPageChange={this.onPageChange} />;
         break;
       case 2:
-        ActivePageComponent = <LoginPage onPageChange={this.onPageChange} regView={true}/>;
+        ActivePageComponent = <LoginPage onPageChange={this.onPageChange}
+                                         regView={true} />;
         break;
       case 3:
         ActivePageComponent = <MapPage/>;
@@ -55,7 +56,7 @@ export default class App extends Component {
         ActivePageComponent = <ProfilePage/>;
         break;
       default:
-        ActivePageComponent = <LoginPage onPageChange={this.onPageChange}/>;
+        ActivePageComponent = <LoginPage onPageChange={this.onPageChange} />;
     }
 
     return (

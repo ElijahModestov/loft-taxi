@@ -23,16 +23,19 @@ const StyledInput = styled.input`
   outline: none;
 `;
 
-const Input = ({ inputType, labelText, placeholderText, onInputChange,
+const Input = ({ inputType, inputName, labelText, placeholderText, onInputChange, currentValue,
                  isRequired = true }) => {
   return (
     <InputContainer>
       <StyledLabel>
         {labelText}
-        <StyledInput type={inputType}
+        <StyledInput id={inputName}
+                     name={inputName}
+                     type={inputType}
                      onChange={(e) => {onInputChange(e)}}
                      placeholder={placeholderText}
-                     required={isRequired}/>
+                     value={currentValue}
+                     required={isRequired} />
       </StyledLabel>
     </InputContainer>
   );

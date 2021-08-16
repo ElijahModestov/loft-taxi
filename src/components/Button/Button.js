@@ -26,9 +26,10 @@ const StyledButton = styled.button`
   }
 `;
 
-const Button = ({ buttonText, onPageChange, isButtonDisabled = false }) => {
+const Button = ({ buttonType, buttonText, onPageChange, isButtonDisabled = false }) => {
   return (
-    <StyledButton onClick={() => {onPageChange(3, true)}}
+    <StyledButton type={buttonType}
+                  onClick={(e) => {onPageChange(3, true)}}
                   disabled={isButtonDisabled}>
       {buttonText}
     </StyledButton>
