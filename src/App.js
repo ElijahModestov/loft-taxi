@@ -3,6 +3,7 @@ import { createGlobalStyle } from 'styled-components';
 
 import Header from './components/Header';
 import LoginPage from './components/Pages/Login';
+import RegistrationPage from './components/Pages/Registration';
 import MapPage from './components/Pages/Map';
 import ProfilePage from './components/Pages/Profile';
 
@@ -27,7 +28,12 @@ export default class App extends Component {
       { id: 4, label: 'Профиль', isNavItem: true, showHeader: true }
     ],
     activePageId: 1,
-    isHeaderShown: false
+    isHeaderShown: false,
+    regForm: {
+      email: '',
+      name: '',
+      password: ''
+    }
   };
 
   onPageChange = (activePageId, isHeaderShown) => {
@@ -37,17 +43,43 @@ export default class App extends Component {
     });
   };
 
+  onInputChange = (e) => {
+    const target = e.target;
+    const name = target.name;
+
+    this.setState({
+      regForm: {
+        ...this.state.regForm,
+        [name]: target.value
+      }
+    });
+  }
+
+  onRegSubmit = (e) => {
+    e.preventDefault();
+  }
+
   render() {
     const { pages } = this.state;
+    const { email, name, password } = this.state.regForm;
     const navItems = pages.filter((page) => page.isNavItem);
     let ActivePageComponent;
+
     switch (this.state.activePageId) {
       case 1:
-        ActivePageComponent = <LoginPage onPageChange={this.onPageChange} />;
+        ActivePageComponent = <LoginPage onPageChange={this.onPageChange}
+                                         onInputChange={this.onInputChange}
+                                         onRegSubmit={this.onRegSubmit}
+                                         email={email}
+                                         password={password} />;
         break;
       case 2:
-        ActivePageComponent = <LoginPage onPageChange={this.onPageChange}
-                                         regView={true} />;
+        ActivePageComponent = <RegistrationPage onPageChange={this.onPageChange}
+                                                onInputChange={this.onInputChange}
+                                                onRegSubmit={this.onRegSubmit}
+                                                email={email}
+                                                name={name}
+                                                password={password}/>;
         break;
       case 3:
         ActivePageComponent = <MapPage/>;
@@ -56,7 +88,11 @@ export default class App extends Component {
         ActivePageComponent = <ProfilePage/>;
         break;
       default:
-        ActivePageComponent = <LoginPage onPageChange={this.onPageChange} />;
+        ActivePageComponent = <LoginPage onPageChange={this.onPageChange}
+                                         onInputChange={this.onInputChange}
+                                         onRegSubmit={this.onRegSubmit}
+                                         email={email}
+                                         password={password} />;
     }
 
     return (
