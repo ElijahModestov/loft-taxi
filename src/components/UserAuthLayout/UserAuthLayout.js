@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import bg_map from '../../assets/bg_map.jpg';
@@ -28,17 +28,17 @@ const MainContainer = styled.div`
   background-size: cover;
 `;
 
-export default class UserAuthLayout extends Component {
-  render() {
-    return (
-      <LoginPageContainer>
-        <SideContainer>
-          <LogoContainer/>
-        </SideContainer>
-        <MainContainer>
-          {this.props.children}
-        </MainContainer>
-      </LoginPageContainer>
-    );
-  }
-}
+const UserAuthLayout = ({ children }) => {
+  return (
+    <LoginPageContainer>
+      <SideContainer>
+        <LogoContainer/>
+      </SideContainer>
+      <MainContainer>
+        {children}
+      </MainContainer>
+    </LoginPageContainer>
+  );
+};
+
+export default UserAuthLayout;
