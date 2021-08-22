@@ -1,6 +1,6 @@
 import React from 'react';
-import LogoContainer from '../logo-container';
-import NavContainer from '../nav-container';
+import LogoContainer from '../LogoContainer';
+import NavContainer from '../NavContainer';
 import styled from 'styled-components';
 
 const HeaderContainer = styled.div`
@@ -16,7 +16,7 @@ const HeaderContainer = styled.div`
 const Header = ({navItems, onPageChange}) => {
   return (
     <HeaderContainer>
-      <LogoContainer/>
+      <LogoContainer rowView={true}/>
       <NavContainer navItems={navItems} onPageChange={onPageChange}/>
     </HeaderContainer>
   );
