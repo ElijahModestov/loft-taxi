@@ -1,3 +1,3 @@
-import UserLoginForm from './UserLoginForm';
+import { UserLoginFormWithAuth } from './UserLoginForm';
 
-export default UserLoginForm;
+export default UserLoginFormWithAuth;

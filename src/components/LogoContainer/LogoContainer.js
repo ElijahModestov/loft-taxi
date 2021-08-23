@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import styled, { css } from 'styled-components';
 
 import logo_primary from '../../assets/logo_primary.svg';
@@ -36,6 +37,10 @@ const LogoContainer = ({ rowView = false }) => {
       <LogoSecondary src={logo_secondary} alt="logo secondary"/>
     </LogoBox>
   )
+};
+
+LogoContainer.propTypes = {
+  rowView: PropTypes.bool
 };
 
 export default LogoContainer;

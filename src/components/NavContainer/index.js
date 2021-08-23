@@ -1,3 +1,3 @@
-import NavContainer from './NavContainer';
+import { NavContainerWithAuth } from './NavContainer';
 
-export default NavContainer;
+export default NavContainerWithAuth;

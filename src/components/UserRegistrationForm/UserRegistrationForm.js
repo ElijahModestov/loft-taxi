@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 import Input from '../Input';
 import Button from '../Button';
+
+import { withAuth } from '../AuthContext';
 
 const AuthForm = styled.form`
   padding: 72px 112px;
@@ -29,37 +32,63 @@ const FormTypeChangeBtn = styled.span`
   }
 `;
 
-const UserRegistrationForm = ({ currentEmail, currentName, currentPassword, onPageChange,
-                                onInputChange, isButtonDisabled, handleSubmit }) => {
-  return (
-    <AuthForm onSubmit={handleSubmit}>
-      <Input inputType={'email'}
-             inputName={'email'}
-             labelText={'Email*'}
-             placeholderText={'mail@mail.ru'}
-             onInputChange={onInputChange}
-             currentValue={currentEmail} />
-      <Input inputType={'text'}
-             inputName={'name'}
-             labelText={'Как вас зовут?*'}
-             placeholderText={'Петр Александрович'}
-             onInputChange={onInputChange}
-             currentValue={currentName} />
-      <Input inputType={'password'}
-             inputName={'password'}
-             labelText={'Придумайте пароль*'}
-             placeholderText={'*************'}
-             onInputChange={onInputChange}
-             currentValue={currentPassword} />
-      <Button buttonType={'button'}
-              buttonText={'Зарегистрироваться'}
-              onPageChange={onPageChange}
-              isButtonDisabled={isButtonDisabled} />
-      <FormTypeChange>
-        Новый пользователь? <FormTypeChangeBtn onClick={() => {onPageChange(1)}}>Войти</FormTypeChangeBtn>
-      </FormTypeChange>
-    </AuthForm>
-  );
+class UserRegistrationForm extends Component {
+  state = {
+    email: '',
+    password: '',
+    name: ''
+  }
+
+  onInputChange = (e) => {
+    const { name, value } = e.target;
+
+    this.setState({
+      [name]: value
+    });
+  }
+
+  render() {
+    const { onPageChange, login } = this.props;
+    const { email, password, name } = this.state;
+    const onSubmitForm = (e) => {
+      e.preventDefault();
+      login(email, password, name);
+      onPageChange(3);
+    };
+
+    return (
+      <AuthForm onSubmit={onSubmitForm}>
+        <Input inputType={'email'}
+               inputName={'email'}
+               labelText={'Email*'}
+               placeholderText={'mail@mail.ru'}
+               currentValue={email}
+               onInputChange={this.onInputChange} />
+        <Input inputType={'text'}
+               inputName={'name'}
+               labelText={'Как вас зовут?*'}
+               placeholderText={'Петр Александрович'}
+               currentValue={name}
+               onInputChange={this.onInputChange} />
+        <Input inputType={'password'}
+               inputName={'password'}
+               labelText={'Придумайте пароль*'}
+               placeholderText={'*************'}
+               currentValue={password}
+               onInputChange={this.onInputChange} />
+        <Button buttonType={'submit'}
+                buttonText={'Зарегистрироваться'}
+                isButtonDisabled={!email || !name || !password } />
+        <FormTypeChange>
+          Новый пользователь? <FormTypeChangeBtn onClick={() => {onPageChange(1)}}>Войти</FormTypeChangeBtn>
+        </FormTypeChange>
+      </AuthForm>
+    );
+  }
+}
+
+UserRegistrationForm.propTypes = {
+  onPageChange: PropTypes.func.isRequired
 };
 
-export default UserRegistrationForm;
+export const UserRegistrationFormWithAuth = withAuth(UserRegistrationForm);

@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 import bg_map from '../../assets/bg_map.jpg';
@@ -39,6 +40,10 @@ const UserAuthLayout = ({ children }) => {
       </MainContainer>
     </LoginPageContainer>
   );
+};
+
+UserAuthLayout.propTypes = {
+  children: PropTypes.node
 };
 
 export default UserAuthLayout;

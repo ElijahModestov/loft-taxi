@@ -1,3 +1,3 @@
-import UserRegistrationForm from './UserRegistrationForm';
+import { UserRegistrationFormWithAuth } from './UserRegistrationForm';
 
-export default UserRegistrationForm;
+export default UserRegistrationFormWithAuth;

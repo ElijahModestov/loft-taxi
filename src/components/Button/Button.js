@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 const StyledButton = styled.button`
@@ -26,14 +27,19 @@ const StyledButton = styled.button`
   }
 `;
 
-const Button = ({ buttonType, buttonText, onPageChange, isButtonDisabled = false }) => {
+const Button = ({ buttonType, buttonText = '', isButtonDisabled = false }) => {
   return (
     <StyledButton type={buttonType}
-                  onClick={(e) => {onPageChange(3, true)}}
                   disabled={isButtonDisabled}>
       {buttonText}
     </StyledButton>
   )
+};
+
+Button.propTypes = {
+  buttonType: PropTypes.string.isRequired,
+  buttonText: PropTypes.string,
+  isButtonDisabled: PropTypes.bool
 };
 
 export default Button;

@@ -1,20 +1,19 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import UserAuthLayout from '../../UserAuthLayout';
-import UserLoginForm from '../../UserLoginForm';
+import UserLoginFormWithAuth from '../../UserLoginForm';
 
-const LoginPage = ({ onPageChange, onInputChange, onRegSubmit,
-                     email, password }) => {
+const LoginPage = ({ onPageChange }) => {
   return (
     <UserAuthLayout>
-      <UserLoginForm currentEmail={email}
-                     currentPassword={password}
-                     onPageChange={onPageChange}
-                     onInputChange={onInputChange}
-                     isButtonDisabled={!email || !password}
-                     handleSubmit={onRegSubmit}/>
+      <UserLoginFormWithAuth onPageChange={onPageChange} />
     </UserAuthLayout>
   );
+};
+
+LoginPage.propTypes = {
+  onPageChange: PropTypes.func.isRequired,
 };
 
 export default LoginPage;
