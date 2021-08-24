@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { createGlobalStyle } from 'styled-components';
 
-import Header from './components/Header';
-import LoginPage from './components/Pages/Login';
-import RegistrationPage from './components/Pages/Registration';
-import MapPage from './components/Pages/Map';
-import ProfilePage from './components/Pages/Profile';
+import { Header } from './components/Header/Header';
+import { LoginPage } from './components/Pages/Login/Login';
+import { RegistrationPage } from './components/Pages/Registration/Registration';
+import { MapPage } from './components/Pages/Map/Map';
+import { ProfilePage } from './components/Pages/Profile/Profile';
 
-import { withAuth } from './components/AuthContext';
+import { withAuth } from './components/AuthContext/AuthContext';
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -59,5 +60,9 @@ class App extends Component {
     );
   };
 }
+
+App.propTypes = {
+  isLoggedIn: PropTypes.bool
+};
 
 export default withAuth(App);

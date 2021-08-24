@@ -30,7 +30,7 @@ const LogoPrimary = styled.img`
 }
   `;
 
-const LogoContainer = ({ rowView = false }) => {
+export const LogoContainer = ({ rowView = false }) => {
   return (
     <LogoBox rowView={rowView}>
       <LogoPrimary src={logo_primary} rowView={rowView} alt="logo primary"/>
@@ -42,5 +42,3 @@ const LogoContainer = ({ rowView = false }) => {
 LogoContainer.propTypes = {
   rowView: PropTypes.bool
 };
-
-export default LogoContainer;

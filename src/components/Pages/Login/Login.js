@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import UserAuthLayout from '../../UserAuthLayout';
-import UserLoginFormWithAuth from '../../UserLoginForm';
+import { UserAuthLayout } from '../../UserAuthLayout/UserAuthLayout';
+import { UserLoginFormWithAuth } from '../../UserLoginForm/UserLoginForm';
 
-const LoginPage = ({ onPageChange }) => {
+export const LoginPage = ({ onPageChange }) => {
   return (
     <UserAuthLayout>
       <UserLoginFormWithAuth onPageChange={onPageChange} />
@@ -15,5 +15,3 @@ const LoginPage = ({ onPageChange }) => {
 LoginPage.propTypes = {
   onPageChange: PropTypes.func.isRequired,
 };
-
-export default LoginPage;

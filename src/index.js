@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
-import { AuthProvider } from './components/AuthContext';
+import { AuthProvider } from './components/AuthContext/AuthContext';
 import * as serviceWorker from "./serviceWorker";
 
 ReactDOM.render(

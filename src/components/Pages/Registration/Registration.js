@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import UserAuthLayout from '../../UserAuthLayout';
-import UserRegistrationFormWithAuth from '../../UserRegistrationForm';
+import { UserAuthLayout } from '../../UserAuthLayout/UserAuthLayout';
+import { UserRegistrationFormWithAuth } from '../../UserRegistrationForm/UserRegistrationForm';
 
-const RegistrationPage = ({ onPageChange }) => {
+export const RegistrationPage = ({ onPageChange }) => {
   return (
     <UserAuthLayout>
       <UserRegistrationFormWithAuth onPageChange={onPageChange} />
@@ -15,5 +15,3 @@ const RegistrationPage = ({ onPageChange }) => {
 RegistrationPage.propTypes = {
   onPageChange: PropTypes.func.isRequired
 };
-
-export default RegistrationPage;

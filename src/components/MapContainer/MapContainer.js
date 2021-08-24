@@ -9,7 +9,7 @@ const StyledMap = styled.div`
   height: calc(100vh - 102px);
 `;
 
-export default class MapContainer extends Component {
+export class MapContainer extends Component {
   state = {
     xPosition: 37.6173,
     yPosition: 55.7558,
@@ -25,8 +25,6 @@ export default class MapContainer extends Component {
       center: [this.state.xPosition, this.state.yPosition],
       zoom: this.state.zoom
     });
-
-    this.map.addControl(new mapboxgl.NavigationControl(), 'bottom-right');
 
     this.map.on('move', () => {
       this.setState({

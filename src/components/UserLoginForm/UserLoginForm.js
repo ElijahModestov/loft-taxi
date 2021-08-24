@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-import Input from '../Input';
-import Button from '../Button';
+import { Input } from '../Input/Input';
+import { Button } from '../Button/Button';
 
-import { withAuth } from '../AuthContext';
+import { withAuth } from '../AuthContext/AuthContext';
 
 const AuthForm = styled.form`
   padding: 72px 112px;
@@ -95,7 +95,8 @@ class UserLoginForm extends Component {
 }
 
 UserLoginForm.propTypes = {
-  onPageChange: PropTypes.func.isRequired
+  onPageChange: PropTypes.func.isRequired,
+  login: PropTypes.func.isRequired
 };
 
 export const UserLoginFormWithAuth = withAuth(UserLoginForm);

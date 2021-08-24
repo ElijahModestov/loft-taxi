@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-import LogoContainer from '../LogoContainer';
-import NavContainer from '../NavContainer';
+import { LogoContainer } from '../LogoContainer/LogoContainer';
+import { NavContainerWithAuth } from '../NavContainer/NavContainer';
 
 const HeaderContainer = styled.div`
   padding: 0 50px 0 27px;
@@ -15,12 +15,12 @@ const HeaderContainer = styled.div`
   background: #1C1A19;
 `;
 
-const Header = ({ activePageId, onPageChange}) => {
+export const Header = ({ activePageId, onPageChange}) => {
   return (
     <HeaderContainer>
       <LogoContainer rowView={true}/>
-      <NavContainer activePageId={activePageId}
-                    onPageChange={onPageChange}/>
+      <NavContainerWithAuth activePageId={activePageId}
+                            onPageChange={onPageChange}/>
     </HeaderContainer>
   );
 };
@@ -29,5 +29,3 @@ Header.propTypes = {
   activePageId: PropTypes.number.isRequired,
   onPageChange: PropTypes.func.isRequired
 };
-
-export default Header;

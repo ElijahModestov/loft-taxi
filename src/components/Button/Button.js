@@ -27,7 +27,7 @@ const StyledButton = styled.button`
   }
 `;
 
-const Button = ({ buttonType, buttonText = '', isButtonDisabled = false }) => {
+export const Button = ({ buttonType, buttonText = '', isButtonDisabled = false }) => {
   return (
     <StyledButton type={buttonType}
                   disabled={isButtonDisabled}>
@@ -41,5 +41,3 @@ Button.propTypes = {
   buttonText: PropTypes.string,
   isButtonDisabled: PropTypes.bool
 };
-
-export default Button;

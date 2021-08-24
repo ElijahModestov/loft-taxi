@@ -24,7 +24,7 @@ const StyledInput = styled.input`
   outline: none;
 `;
 
-const Input = ({ inputType, inputName, labelText, placeholderText, currentValue,
+export const Input = ({ inputType, inputName, labelText, placeholderText, currentValue,
                  onInputChange, isRequired = true }) => {
   return (
     <InputContainer>
@@ -54,5 +54,3 @@ Input.propTypes = {
   onInputChange: PropTypes.func.isRequired,
   isRequired: PropTypes.bool
 };
-
-export default Input;

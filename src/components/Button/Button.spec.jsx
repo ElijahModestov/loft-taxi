@@ -1,5 +1,5 @@
 import React from 'react';
-import Button from './Button';
+import { Button } from './Button';
 import { render } from '@testing-library/react';
 
 describe('Button', () => {
@@ -7,8 +7,7 @@ describe('Button', () => {
     const { getByText } = render(<Button buttonType={'submit'}
                                          buttonText={'test text'}
                                          isButtonDisabled={true}/>);
-    expect(getByText('test text')).toHaveAttribute('submit');
-    expect(getByText('test text')).toHaveAttribute('test text');
-    expect(getByText('test text')).toHaveAttribute('disabled');
+    expect(getByText('test text')).toHaveAttribute('type', 'submit');
+    expect(getByText('test text')).toHaveProperty('disabled', true);
   });
 });

@@ -5,10 +5,8 @@ const FancyHeader = styled.h1`
   text-align: center;
 `;
 
-const ProfilePage = () => {
+export const ProfilePage = () => {
   return (
     <FancyHeader>Profile page</FancyHeader>
   );
 };
-
-export default ProfilePage;

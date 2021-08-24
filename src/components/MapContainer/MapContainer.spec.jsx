@@ -1,13 +1,13 @@
 import React from 'react';
-import MapContainer from './MapContainer';
+import { MapContainer } from './MapContainer';
 import { render } from '@testing-library/react';
 import mapboxgl from 'mapbox-gl';
 
-jest.mock('mapbox-gl', () => {
-  Map: jest.fn(() => ({ remove: () => {} }));
-});
+jest.mock('mapbox-gl', () => ({
+  Map: jest.fn(() => ({ remove: () => {}, on: () => {} })),
+}));
 
-describe('Map', () => {
+describe('MapContainer', () => {
   it('renders correctly', () => {
     const { getByTestId } = render(<MapContainer />);
 

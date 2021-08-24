@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-import { withAuth } from '../AuthContext';
+import { withAuth } from '../AuthContext/AuthContext';
 
 const NavList = styled.ul`
   display: flex;
@@ -50,7 +50,8 @@ const NavContainer = ({ activePageId, onPageChange, logout }) => {
 
 NavContainer.propTypes = {
   activePageId: PropTypes.number.isRequired,
-  onPageChange: PropTypes.func.isRequired
+  onPageChange: PropTypes.func.isRequired,
+  logout: PropTypes.func.isRequired
 };
 
 export const NavContainerWithAuth = withAuth(NavContainer);
