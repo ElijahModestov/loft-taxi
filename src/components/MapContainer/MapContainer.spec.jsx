@@ -3,8 +3,10 @@ import { MapContainer } from './MapContainer';
 import { render } from '@testing-library/react';
 import mapboxgl from 'mapbox-gl';
 
-jest.mock('mapbox-gl', () => ({
-  Map: jest.fn(() => ({ remove: () => {}, on: () => {} })),
+jest.mock('mapbox-gl/dist/mapbox-gl', () => ({
+  Map: jest.fn(() => ({
+    remove: () => {}
+  })),
 }));
 
 describe('MapContainer', () => {
