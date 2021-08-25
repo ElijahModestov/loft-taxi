@@ -1,8 +1,10 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 import bg_map from '../../assets/bg_map.jpg';
-import LogoContainer from "../LogoContainer";
+
+import { LogoContainer } from '../LogoContainer/LogoContainer';
 
 const LoginPageContainer = styled.div`
   display: flex;
@@ -28,7 +30,7 @@ const MainContainer = styled.div`
   background-size: cover;
 `;
 
-const UserAuthLayout = ({ children }) => {
+export const UserAuthLayout = ({ children }) => {
   return (
     <LoginPageContainer>
       <SideContainer>
@@ -41,4 +43,6 @@ const UserAuthLayout = ({ children }) => {
   );
 };
 
-export default UserAuthLayout;
+UserAuthLayout.propTypes = {
+  children: PropTypes.node
+};

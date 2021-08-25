@@ -1,5 +1,8 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
+
+import { withAuth } from '../AuthContext/AuthContext';
 
 const NavList = styled.ul`
   display: flex;
@@ -22,25 +25,33 @@ const NavItem = styled.li`
   }
 `;
 
-const NavContainer = ({ navItems, onPageChange }) => {
-  const elements = navItems.map((item) => {
-    const { id, label, isActive, showHeader } = item;
-
-    return (
-      <NavItem key={id}
-               active={isActive}
-               onClick={() => onPageChange(id, showHeader)}>
-        { label }
-      </NavItem>
-    );
-  });
+const NavContainer = ({ activePageId, onPageChange, logout }) => {
+  const logoutAndRedirect = () => {
+    logout();
+    onPageChange(1);
+  };
 
   return (
     <NavList>
-      { elements }
-      <NavItem onClick={() => onPageChange(1, false)}>Выйти</NavItem>
+      <NavItem key={3}
+               active={activePageId === 3}
+               onClick={() => onPageChange(3)}>
+        Карта
+      </NavItem>
+      <NavItem key={4}
+               active={activePageId === 4}
+               onClick={() => onPageChange(4)}>
+        Профиль
+      </NavItem>
+      <NavItem onClick={logoutAndRedirect}>Выйти</NavItem>
     </NavList>
   );
 }
 
-export default NavContainer;
+NavContainer.propTypes = {
+  activePageId: PropTypes.number.isRequired,
+  onPageChange: PropTypes.func.isRequired,
+  logout: PropTypes.func.isRequired
+};
+
+export const NavContainerWithAuth = withAuth(NavContainer);

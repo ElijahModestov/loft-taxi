@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { createGlobalStyle } from 'styled-components';
 
-import Header from './components/Header';
-import LoginPage from './components/Pages/Login';
-import RegistrationPage from './components/Pages/Registration';
-import MapPage from './components/Pages/Map';
-import ProfilePage from './components/Pages/Profile';
+import { Header } from './components/Header/Header';
+import { LoginPage } from './components/Pages/Login/Login';
+import { RegistrationPage } from './components/Pages/Registration/Registration';
+import { MapPage } from './components/Pages/Map/Map';
+import { ProfilePage } from './components/Pages/Profile/Profile';
+
+import { withAuth } from './components/AuthContext/AuthContext';
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -19,90 +22,47 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
-export default class App extends Component {
+class App extends Component {
   state = {
-    pages: [
-      { id: 1, label: 'Войти', isNavItem: false, showHeader: false },
-      { id: 2, label: 'Регистрация', isNavItem: false, showHeader: false },
-      { id: 3, label: 'Карта', isNavItem: true, showHeader: true },
-      { id: 4, label: 'Профиль', isNavItem: true, showHeader: true }
-    ],
-    activePageId: 1,
-    isHeaderShown: false,
-    regForm: {
-      email: '',
-      name: '',
-      password: ''
-    }
-  };
-
-  onPageChange = (activePageId, isHeaderShown) => {
-    this.setState({
-      activePageId,
-      isHeaderShown
-    });
-  };
-
-  onInputChange = (e) => {
-    const target = e.target;
-    const name = target.name;
-
-    this.setState({
-      regForm: {
-        ...this.state.regForm,
-        [name]: target.value
-      }
-    });
+    activePageId: 1
   }
 
-  onRegSubmit = (e) => {
-    e.preventDefault();
+  onPageChange = (activePageId) => {
+    this.setState({
+      activePageId
+    });
   }
 
   render() {
-    const { pages } = this.state;
-    const { email, name, password } = this.state.regForm;
-    const navItems = pages.filter((page) => page.isNavItem);
-    let ActivePageComponent;
-
-    switch (this.state.activePageId) {
-      case 1:
-        ActivePageComponent = <LoginPage onPageChange={this.onPageChange}
-                                         onInputChange={this.onInputChange}
-                                         onRegSubmit={this.onRegSubmit}
-                                         email={email}
-                                         password={password} />;
-        break;
-      case 2:
-        ActivePageComponent = <RegistrationPage onPageChange={this.onPageChange}
-                                                onInputChange={this.onInputChange}
-                                                onRegSubmit={this.onRegSubmit}
-                                                email={email}
-                                                name={name}
-                                                password={password}/>;
-        break;
-      case 3:
-        ActivePageComponent = <MapPage/>;
-        break;
-      case 4:
-        ActivePageComponent = <ProfilePage/>;
-        break;
-      default:
-        ActivePageComponent = <LoginPage onPageChange={this.onPageChange}
-                                         onInputChange={this.onInputChange}
-                                         onRegSubmit={this.onRegSubmit}
-                                         email={email}
-                                         password={password} />;
-    }
+    const { activePageId } = this.state;
+    const isLoggedIn = this.props.isLoggedIn;
 
     return (
       <>
         <GlobalStyle/>
-        {this.state.isHeaderShown &&
-          <Header navItems={navItems} onPageChange={this.onPageChange}/>
+        {!isLoggedIn && activePageId === 1 &&
+          <LoginPage onPageChange={this.onPageChange} />
         }
-        {ActivePageComponent}
+        {!isLoggedIn && activePageId === 2 &&
+          <RegistrationPage onPageChange={this.onPageChange} />
+        }
+        {isLoggedIn &&
+          <Header activePageId={activePageId}
+                  onPageChange={this.onPageChange}/>
+        }
+        {isLoggedIn && activePageId === 3 &&
+          <MapPage/>
+        }
+        {isLoggedIn && activePageId === 4 &&
+          <ProfilePage/>
+        }
       </>
     );
   };
 }
+
+App.propTypes = {
+  isLoggedIn: PropTypes.bool
+};
+
+export default withAuth(App);

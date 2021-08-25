@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 const InputContainer = styled.div`
@@ -23,8 +24,8 @@ const StyledInput = styled.input`
   outline: none;
 `;
 
-const Input = ({ inputType, inputName, labelText, placeholderText, onInputChange, currentValue,
-                 isRequired = true }) => {
+export const Input = ({ inputType, inputName, labelText, placeholderText, currentValue,
+                 onInputChange, isRequired = true }) => {
   return (
     <InputContainer>
       <StyledLabel>
@@ -32,13 +33,24 @@ const Input = ({ inputType, inputName, labelText, placeholderText, onInputChange
         <StyledInput id={inputName}
                      name={inputName}
                      type={inputType}
-                     onChange={(e) => {onInputChange(e)}}
                      placeholder={placeholderText}
                      value={currentValue}
+                     onChange={onInputChange}
                      required={isRequired} />
       </StyledLabel>
     </InputContainer>
   );
 };
 
-export default Input;
+Input.propTypes = {
+  inputType: PropTypes.string.isRequired,
+  inputName: PropTypes.string.isRequired,
+  labelText: PropTypes.string.isRequired,
+  placeholderText: PropTypes.string.isRequired,
+  currentValue: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number
+  ]).isRequired,
+  onInputChange: PropTypes.func.isRequired,
+  isRequired: PropTypes.bool
+};
