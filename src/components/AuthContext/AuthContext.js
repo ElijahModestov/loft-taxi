@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 export const AuthContext = React.createContext({});
 
 export const AuthProvider = ({ children }) => {
+  const loginPath = '/login';
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
   const [auth, setAuth] = React.useState({
     email: '',
@@ -24,7 +25,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn, loginPath, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

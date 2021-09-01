@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 import { LogoContainer } from '../LogoContainer/LogoContainer';
@@ -15,17 +14,11 @@ const HeaderContainer = styled.div`
   background: #1C1A19;
 `;
 
-export const Header = ({ activePageId, onPageChange}) => {
+export const Header = () => {
   return (
     <HeaderContainer>
       <LogoContainer rowView={true}/>
-      <NavContainerWithAuth activePageId={activePageId}
-                            onPageChange={onPageChange}/>
+      <NavContainerWithAuth />
     </HeaderContainer>
   );
-};
-
-Header.propTypes = {
-  activePageId: PropTypes.number.isRequired,
-  onPageChange: PropTypes.func.isRequired
 };

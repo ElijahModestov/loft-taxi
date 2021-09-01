@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { Link, withRouter } from 'react-router-dom';
+import { connect } from 'react-redux';
+
+import { authenticate } from '../../actions';
+import { compose } from '../HocUtils/compose';
 
 import { Input } from '../Input/Input';
 import { Button } from '../Button/Button';
-
-import { withAuth } from '../AuthContext/AuthContext';
 
 const AuthForm = styled.form`
   padding: 72px 112px;
@@ -34,9 +37,10 @@ const FormTypeChange = styled.div`
   color: #828282;
 `;
 
-const FormTypeChangeBtn = styled.span`
+const FormTypeChangeBtn = styled(Link)`
   color: #FDBF5A;
   cursor: pointer;
+  text-decoration: none;
 
   &:hover {
     color: #FFA842;
@@ -58,12 +62,12 @@ class UserLoginForm extends Component {
   }
 
   render() {
-    const { onPageChange, login } = this.props;
+    const { authenticate } = this.props;
     const { email, password } = this.state;
     const onSubmitForm = (e) => {
       e.preventDefault();
-      login(email, password);
-      onPageChange(3);
+      authenticate(email, password);
+      this.props.history.push('/');
     };
 
     return (
@@ -87,7 +91,7 @@ class UserLoginForm extends Component {
                 buttonText={'Войти'}
                 isButtonDisabled={!email || !password}/>
         <FormTypeChange>
-          Новый пользователь? <FormTypeChangeBtn onClick={() => {onPageChange(2)}}>Регистрация</FormTypeChangeBtn>
+          Новый пользователь? <FormTypeChangeBtn to="/registration">Регистрация</FormTypeChangeBtn>
         </FormTypeChange>
       </AuthForm>
     );
@@ -95,8 +99,13 @@ class UserLoginForm extends Component {
 }
 
 UserLoginForm.propTypes = {
-  onPageChange: PropTypes.func.isRequired,
-  login: PropTypes.func.isRequired
+  authenticate: PropTypes.func.isRequired
 };
 
-export const UserLoginFormWithAuth = withAuth(UserLoginForm);
+export const UserLoginFormWithAuth = compose(
+  withRouter,
+  connect(
+    null,
+    { authenticate }
+  )
+)(UserLoginForm);
