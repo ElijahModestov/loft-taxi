@@ -56,7 +56,11 @@ class UserRegistrationForm extends Component {
     const { email, password, name } = this.state;
     const onSubmitForm = (e) => {
       e.preventDefault();
-      register(email, password, name);
+
+      const firstName = name.replace(/ [\s\S]+/, '');
+      const lastName = name.replace(/[^ ]+ /, '');
+
+      register(email, password, firstName, lastName);
       this.props.history.push('/');
     };
 

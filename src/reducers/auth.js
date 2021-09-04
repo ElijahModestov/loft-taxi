@@ -4,21 +4,44 @@ const initialState = {
   isLoggedIn: false,
   email: '',
   password: '',
-  name: ''
+  name: '',
+  surname: '',
+  token: '',
+};
+const cachedState = JSON.parse(localStorage.getItem('auth'));
+const combinedState = {
+  ...initialState,
+  ...cachedState
 };
 
-export function auth (state = initialState, action) {
+export function auth (state = combinedState, action) {
   switch (action.type) {
     case LOGIN: {
+      const { email, password, token, name, surname } = action.payload;
+
+      localStorage.setItem('auth', JSON.stringify({
+        isLoggedIn: true,
+        email,
+        token,
+        name,
+        surname
+      }));
+
       return {
         ...state,
-        isLoggedIn: true
+        isLoggedIn: true,
+        email,
+        password,
+        name,
+        surname,
+        token
       }
     }
     case LOGOUT: {
+      localStorage.removeItem('auth');
+
       return {
-        ...state,
-        isLoggedIn: false
+        ...initialState
       }
     }
     default:
@@ -29,4 +52,4 @@ export function auth (state = initialState, action) {
 export const getIsLoggedIn = state => state.auth.isLoggedIn;
 export const getEmail = state => state.auth.email;
 export const getPassword = state => state.auth.password;
-export const getName = state => state.auth.name;
+export const getToken = state => state.auth.token;
