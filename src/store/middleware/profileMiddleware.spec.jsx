@@ -1,6 +1,6 @@
 import { profileMiddleware } from './profileMiddleware';
-import { updatePaymentData, fetchPaymentData } from '../actions';
-import {serverPaymentUpdate, serverPaymentData, serverLogin} from '../api';
+import { updatePaymentData, fetchPaymentData } from '../actions/profile';
+import { serverPaymentUpdate, serverPaymentData } from '../../api';
 
 const apiMockResponseUpdate = { success: true };
 const apiMockResponseFetch = {
@@ -10,7 +10,7 @@ const apiMockResponseFetch = {
   cvc: 'test_cvc'
 };
 
-jest.mock('../api', () => ({
+jest.mock('../../api', () => ({
   serverPaymentUpdate: jest.fn(() => apiMockResponseUpdate),
   serverPaymentData: jest.fn(() => apiMockResponseFetch)
 }));

@@ -4,8 +4,8 @@ import { createGlobalStyle } from 'styled-components';
 import { Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import { getIsLoggedIn, getToken } from './reducers/auth';
-import { fetchPaymentData } from './actions';
+import { getIsLoggedIn, getToken } from './store/reducers/auth';
+import { fetchPaymentData } from './store/actions/profile';
 
 import { PrivateRouteWithAuth } from './components/PrivateRoute/PrivateRoute';
 import { PublicRouteWithAuth } from './components/PublicRoute/PublicRoute';
@@ -30,7 +30,7 @@ const GlobalStyle = createGlobalStyle`
 const App = ({ isLoggedIn, token, fetchPaymentData }) => {
   useEffect(() => {
     isLoggedIn && fetchPaymentData(token);
-  }, [isLoggedIn]);
+  }, [isLoggedIn, token, fetchPaymentData]);
 
   return (
     <>

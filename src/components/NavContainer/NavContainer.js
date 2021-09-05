@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Link, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import { logout } from '../../actions';
+import { logout } from '../../store/actions/auth';
 import { compose } from '../HocUtils/compose';
 
 const NavList = styled.div`

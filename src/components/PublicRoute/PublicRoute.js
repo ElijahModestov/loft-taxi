@@ -1,7 +1,7 @@
 import React from 'react';
 import { Route, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { getIsLoggedIn } from '../../reducers/auth';
+import { getIsLoggedIn } from '../../store/reducers/auth';
 
 const PublicRoute = ({ component: RouteComponent, isLoggedIn, ...rest }) => (
   <Route {...rest}

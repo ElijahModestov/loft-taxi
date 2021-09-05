@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Link, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import { register } from '../../actions';
+import { register } from '../../store/actions/auth';
 import { compose } from '../HocUtils/compose';
 
 import { Input } from '../Input/Input';

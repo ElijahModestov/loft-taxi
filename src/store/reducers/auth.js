@@ -1,4 +1,4 @@
-import { LOGIN, LOGOUT } from '../actions';
+import { LOGIN, LOGOUT, STORE_AUTH_ERROR } from '../actions/auth';
 
 const initialState = {
   isLoggedIn: false,
@@ -7,6 +7,7 @@ const initialState = {
   name: '',
   surname: '',
   token: '',
+  error: ''
 };
 const cachedState = JSON.parse(localStorage.getItem('auth'));
 const combinedState = {
@@ -44,6 +45,14 @@ export function auth (state = combinedState, action) {
         ...initialState
       }
     }
+    case STORE_AUTH_ERROR: {
+      const { error } = action.payload;
+
+      return {
+        ...state,
+        error
+      }
+    }
     default:
       return state
   }
@@ -53,3 +62,4 @@ export const getIsLoggedIn = state => state.auth.isLoggedIn;
 export const getEmail = state => state.auth.email;
 export const getPassword = state => state.auth.password;
 export const getToken = state => state.auth.token;
+export const getAuthError = state => state.auth.error;

@@ -4,9 +4,9 @@ import styled from "styled-components";
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 
-import { updatePaymentData } from '../../../actions';
-import { getCardName, getCardNumber, getExpiryDate, getCvc } from '../../../reducers/profile';
-import { getToken } from '../../../reducers/auth';
+import { updatePaymentData } from '../../../store/actions/profile';
+import { getCardName, getCardNumber, getExpiryDate, getCvc } from '../../../store/reducers/profile';
+import { getToken } from '../../../store/reducers/auth';
 
 import { Button } from '../../Button/Button';
 import { Input } from '../../Input/Input';
