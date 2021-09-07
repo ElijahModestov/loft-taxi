@@ -1,4 +1,5 @@
 import { LOGIN, LOGOUT, STORE_AUTH_ERROR } from '../actions/auth';
+import { cacheObject, getCachedObject, removeCachedObject } from '../../caching';
 
 const initialState = {
   isLoggedIn: false,
@@ -9,7 +10,7 @@ const initialState = {
   token: '',
   error: ''
 };
-const cachedState = JSON.parse(localStorage.getItem('auth'));
+const cachedState = getCachedObject('auth');
 const combinedState = {
   ...initialState,
   ...cachedState
@@ -20,13 +21,13 @@ export function auth (state = combinedState, action) {
     case LOGIN: {
       const { email, password, token, name, surname } = action.payload;
 
-      localStorage.setItem('auth', JSON.stringify({
+      cacheObject('auth', {
         isLoggedIn: true,
         email,
         token,
         name,
         surname
-      }));
+      });
 
       return {
         ...state,
@@ -39,7 +40,7 @@ export function auth (state = combinedState, action) {
       }
     }
     case LOGOUT: {
-      localStorage.removeItem('auth');
+      removeCachedObject('auth');
 
       return {
         ...initialState
