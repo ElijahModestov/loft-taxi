@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { Link, withRouter } from 'react-router-dom';
+import { connect } from 'react-redux';
+
+import { register } from '../../store/actions/auth';
+import { compose } from '../HocUtils/compose';
 
 import { Input } from '../Input/Input';
 import { Button } from '../Button/Button';
-
-import { withAuth } from '../AuthContext/AuthContext';
 
 const AuthForm = styled.form`
   padding: 72px 112px;
@@ -23,9 +26,10 @@ const FormTypeChange = styled.div`
   color: #828282;
 `;
 
-const FormTypeChangeBtn = styled.span`
+const FormTypeChangeBtn = styled(Link)`
   color: #FDBF5A;
   cursor: pointer;
+  text-decoration: none;
 
   &:hover {
     color: #FFA842;
@@ -48,12 +52,16 @@ class UserRegistrationForm extends Component {
   }
 
   render() {
-    const { onPageChange, login } = this.props;
+    const { register } = this.props;
     const { email, password, name } = this.state;
     const onSubmitForm = (e) => {
       e.preventDefault();
-      login(email, password, name);
-      onPageChange(3);
+
+      const firstName = name.replace(/ [\s\S]+/, '');
+      const lastName = name.replace(/[^ ]+ /, '');
+
+      register(email, password, firstName, lastName);
+      this.props.history.push('/');
     };
 
     return (
@@ -80,7 +88,7 @@ class UserRegistrationForm extends Component {
                 buttonText={'Зарегистрироваться'}
                 isButtonDisabled={!email || !name || !password } />
         <FormTypeChange>
-          Новый пользователь? <FormTypeChangeBtn onClick={() => {onPageChange(1)}}>Войти</FormTypeChangeBtn>
+          Новый пользователь? <FormTypeChangeBtn to="/login">Войти</FormTypeChangeBtn>
         </FormTypeChange>
       </AuthForm>
     );
@@ -88,8 +96,13 @@ class UserRegistrationForm extends Component {
 }
 
 UserRegistrationForm.propTypes = {
-  onPageChange: PropTypes.func.isRequired,
-  login: PropTypes.func.isRequired
+  register: PropTypes.func.isRequired
 };
 
-export const UserRegistrationFormWithAuth = withAuth(UserRegistrationForm);
+export const UserRegistrationFormWithAuth = compose(
+  withRouter,
+  connect(
+    null,
+    { register }
+  )
+)(UserRegistrationForm);

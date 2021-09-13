@@ -4,6 +4,7 @@ import styled from 'styled-components';
 
 const InputContainer = styled.div`
   margin: 25px 0 0;
+  width: ${props => props.customWidth || '100%' };
 `;
 
 const StyledLabel = styled.label`
@@ -25,9 +26,9 @@ const StyledInput = styled.input`
 `;
 
 export const Input = ({ inputType, inputName, labelText, placeholderText, currentValue,
-                 onInputChange, isRequired = true }) => {
+                 onInputChange, customWidth, isRequired = true }) => {
   return (
-    <InputContainer>
+    <InputContainer customWidth={customWidth}>
       <StyledLabel>
         {labelText}
         <StyledInput id={inputName}
@@ -52,5 +53,6 @@ Input.propTypes = {
     PropTypes.number
   ]).isRequired,
   onInputChange: PropTypes.func.isRequired,
-  isRequired: PropTypes.bool
+  isRequired: PropTypes.bool,
+  customWidth: PropTypes.string
 };

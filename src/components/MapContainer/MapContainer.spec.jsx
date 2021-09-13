@@ -5,7 +5,7 @@ import mapboxgl from 'mapbox-gl';
 
 jest.mock('mapbox-gl/dist/mapbox-gl', () => ({
   Map: jest.fn(() => ({
-    remove: () => {}
+    remove: jest.fn()
   })),
 }));
 

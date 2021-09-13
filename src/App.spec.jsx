@@ -1,10 +1,20 @@
 import React from 'react';
-import { render, fireEvent, createEvent } from '@testing-library/react';
-import { act } from 'react-dom/test-utils';
-import App from './App';
+import { render, fireEvent } from '@testing-library/react';
+import { AppWithProfileDataAndAuth } from './App';
+import { Provider } from 'react-redux';
+import { Router } from 'react-router-dom';
+import { createMemoryHistory } from 'history';
+import { Link } from 'react-router-dom';
 
 jest.mock('./components/Header/Header',
-  () => ({ Header: () => <div>Header content</div> }));
+  () => ({ Header: () => (
+    <div>
+      <Link to="/">Карта</Link>
+      <Link to="/profile">Профиль</Link>
+      <Link to="/login">Логин</Link>
+      <Link to="/registration">Регистрация</Link>
+    </div>
+    ) }));
 jest.mock('./components/Pages/Login/Login',
   () => ({ LoginPage: () => <div>Login page content</div> }));
 jest.mock('./components/Pages/Registration/Registration',
@@ -12,49 +22,80 @@ jest.mock('./components/Pages/Registration/Registration',
 jest.mock('./components/Pages/Map/Map',
   () => ({ MapPage: () => <div>Map page content</div> }));
 jest.mock('./components/Pages/Profile/Profile',
-  () => ({ ProfilePage: () => <div>Profile page content</div> }));
+  () => ({ ProfilePageWithProfileDataAndAuth: () => <div>Profile page content</div> }));
 
 describe('App', () => {
   it('renders correctly', () => {
-    const { getByText } = render(<App isLoggedIn={false} />);
+    const mockStore = {
+      getState: () => ({ auth: { isLoggedIn: false }}),
+      subscribe: () => {},
+      dispatch: () => {},
+    };
+    const history = createMemoryHistory();
+
+    const { getByText } = render(
+      <Router history={history}>
+        <Provider store={mockStore}>
+          <AppWithProfileDataAndAuth />
+        </Provider>
+      </Router>
+    );
 
     expect(getByText('Login page content')).toBeInTheDocument();
   });
 
-  describe('when changing pages', () => {
+  describe('when changing pages being logged in', () => {
     it('opens the correct pages', () => {
-      let isLoggedIn = false;
-      let activePageId = 1;
-      const { getByText } = render(<App isLoggedIn={isLoggedIn}
-                                        activePageId={activePageId} />);
+      const mockStore = {
+        getState: () => ({ auth: { isLoggedIn: true }}),
+        subscribe: () => {},
+        dispatch: () => {},
+      };
+      const history = createMemoryHistory();
+
+      const { getByText } = render(
+        <Router history={history}>
+          <Provider store={mockStore}>
+            <AppWithProfileDataAndAuth />
+          </Provider>
+        </Router>
+      );
       expect(getByText('Login page content')).toBeInTheDocument();
+      fireEvent.click(getByText('Карта'));
+      expect(getByText).toMatch('Map page content');
+      fireEvent(getByText('Профиль'));
+      expect(getByText).toMatch('Profile page content');
+      fireEvent.click(getByText('Логин'));
+      expect(getByText).toMatch('Login page content');
+      fireEvent(getByText('Регистрация'));
+      expect(getByText).toMatch('Registration page content');
+    });
+  });
+  describe('when changing pages being anonymous', () => {
+    it('opens the correct pages', () => {
+      const mockStore = {
+        getState: () => ({ auth: { isLoggedIn: false }}),
+        subscribe: () => {},
+        dispatch: () => {},
+      };
+      const history = createMemoryHistory();
 
-      fireEvent(
-        getByText('Login page content'),
-        createEvent(
-          'onPageChange',
-          getByText('Login page content'),
-          {id: 2},
-          { EventType: 'CustomEvent' }));
-      expect(getByText('Registration page content')).toBeInTheDocument();
-
-      fireEvent(
-        getByText('Registration page content'),
-        createEvent(
-          'onPageChange',
-          getByText('Registration page content'),
-          {id: 3},
-          { EventType: 'CustomEvent' }));
-      expect(getByText('Map page content')).toBeInTheDocument();
-
-      fireEvent(
-        getByText('Map page content'),
-        createEvent(
-          'onPageChange',
-          getByText('Map page content'),
-          {id: 4},
-          { EventType: 'CustomEvent' }));
-      expect(getByText('Profile page content')).toBeInTheDocument();
+      const { getByText } = render(
+        <Router history={history}>
+          <Provider store={mockStore}>
+            <AppWithProfileDataAndAuth />
+          </Provider>
+        </Router>
+      );
+      expect(getByText('Login page content')).toBeInTheDocument();
+      fireEvent.click(getByText('Карта'));
+      expect(getByText).toMatch('Login page content');
+      fireEvent(getByText('Профиль'));
+      expect(getByText).toMatch('Login page content');
+      fireEvent.click(getByText('Логин'));
+      expect(getByText).toMatch('Login page content');
+      fireEvent(getByText('Регистрация'));
+      expect(getByText).toMatch('Registration page content');
     });
   });
 });
