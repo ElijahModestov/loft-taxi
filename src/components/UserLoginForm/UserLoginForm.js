@@ -5,6 +5,7 @@ import { Link, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 import { authenticate } from '../../store/actions/auth';
+import { getIsLoggedIn } from '../../store/reducers/auth';
 import { compose } from '../HocUtils/compose';
 
 import { Input } from '../Input/Input';
@@ -53,6 +54,10 @@ class UserLoginForm extends Component {
     password: ''
   }
 
+  componentDidUpdate() {
+    this.props.isLoggedIn && this.props.history.push('/');
+  }
+
   onInputChange = (e) => {
     const { name, value } = e.target;
 
@@ -99,13 +104,14 @@ class UserLoginForm extends Component {
 }
 
 UserLoginForm.propTypes = {
+  isLoggedIn: PropTypes.bool.isRequired,
   authenticate: PropTypes.func.isRequired
 };
 
 export const UserLoginFormWithAuth = compose(
   withRouter,
   connect(
-    null,
+    (state) => ({ isLoggedIn: getIsLoggedIn(state) }),
     { authenticate }
   )
 )(UserLoginForm);

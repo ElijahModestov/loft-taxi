@@ -29,7 +29,7 @@ describe('authReducer', () => {
   it('stores login data on login', () => {
     expect(auth(initialState, login('test_email', 'test_password',
       'test_token', 'test_name', 'test_surname')))
-      .toEqual(filledState);
+      .toStrictEqual(filledState);
 
     expect(getCachedObject('auth')).toStrictEqual({
       isLoggedIn: true,

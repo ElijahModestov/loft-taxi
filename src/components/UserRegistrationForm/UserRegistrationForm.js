@@ -9,6 +9,7 @@ import { compose } from '../HocUtils/compose';
 
 import { Input } from '../Input/Input';
 import { Button } from '../Button/Button';
+import {getIsLoggedIn} from "../../store/reducers/auth";
 
 const AuthForm = styled.form`
   padding: 72px 112px;
@@ -41,6 +42,10 @@ class UserRegistrationForm extends Component {
     email: '',
     password: '',
     name: ''
+  }
+
+  componentDidUpdate() {
+    this.props.isLoggedIn && this.props.history.push('/');
   }
 
   onInputChange = (e) => {
@@ -96,13 +101,14 @@ class UserRegistrationForm extends Component {
 }
 
 UserRegistrationForm.propTypes = {
+  isLoggedIn: PropTypes.bool.isRequired,
   register: PropTypes.func.isRequired
 };
 
 export const UserRegistrationFormWithAuth = compose(
   withRouter,
   connect(
-    null,
+    (state) => ({ isLoggedIn: getIsLoggedIn(state) }),
     { register }
   )
 )(UserRegistrationForm);

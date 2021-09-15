@@ -29,10 +29,13 @@ const StyledButton = styled.button`
   }
 `;
 
-export const Button = ({ buttonType, buttonText = '', isButtonDisabled = false }) => {
+export const Button = ({ buttonType, buttonText = '', isButtonDisabled = false,
+                         onBtnClick = () => {}, className = '' }) => {
   return (
-    <StyledButton type={buttonType}
-                  disabled={isButtonDisabled}>
+    <StyledButton className={className}
+                  type={buttonType}
+                  disabled={isButtonDisabled}
+                  onClick={onBtnClick}>
       {buttonText}
     </StyledButton>
   )
@@ -41,5 +44,7 @@ export const Button = ({ buttonType, buttonText = '', isButtonDisabled = false }
 Button.propTypes = {
   buttonType: PropTypes.string.isRequired,
   buttonText: PropTypes.string,
-  isButtonDisabled: PropTypes.bool
+  isButtonDisabled: PropTypes.bool,
+  onBtnClick: PropTypes.func,
+  className: PropTypes.string
 };
