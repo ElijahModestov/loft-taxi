@@ -3,13 +3,14 @@ import PropTypes from 'prop-types';
 import styled from "styled-components";
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { Form, Field } from 'react-final-form';
 
 import { updatePaymentData } from '../../../store/actions/profile';
 import { getCardName, getCardNumber, getExpiryDate, getCvc } from '../../../store/reducers/profile';
 import { getToken } from '../../../store/reducers/auth';
 
 import { Button } from '../../Button/Button';
-import { Input } from '../../Input/Input';
+import { InputAdapter } from '../../Input/Input';
 import bg_map from '../../../assets/bg_map_shadowed.jpg';
 import card_pic from '../../../assets/card.svg';
 
@@ -109,8 +110,7 @@ export class ProfilePage extends Component {
     });
   }
 
-  onProfileSubmit = (e) => {
-    e.preventDefault();
+  onProfileSubmit = () => {
     const { cardName, cardNumber, expiryDate, cvc } = this.state;
     const { token } = this.props;
 
@@ -138,40 +138,63 @@ export class ProfilePage extends Component {
           {!isProfileChanged ? (
             <>
               <ProfileText>Введите платежные данные</ProfileText>
-              <ProfileForm onSubmit={this.onProfileSubmit}>
-                <DataContainer>
-                  <Input inputType={'text'}
-                         inputName={'cardName'}
-                         labelText={'Имя владельца'}
-                         placeholderText={'Loft'}
-                         currentValue={cardName}
-                         onInputChange={this.onInputChange}/>
-                  <Input inputType={'text'}
-                         inputName={'cardNumber'}
-                         labelText={'Номер карты'}
-                         placeholderText={'5545 2300 3432 4521'}
-                         currentValue={cardNumber}
-                         onInputChange={this.onInputChange}/>
-                  <Input inputType={'text'}
-                         inputName={'expiryDate'}
-                         labelText={'MM/YY'}
-                         placeholderText={'05/08'}
-                         currentValue={expiryDate}
-                         onInputChange={this.onInputChange}
-                         customWidth={'calc(50% - 18px)'}/>
-                  <Input inputType={'text'}
-                         inputName={'cvc'}
-                         labelText={'CVC'}
-                         placeholderText={'667'}
-                         currentValue={cvc}
-                         onInputChange={this.onInputChange}
-                         customWidth={'calc(50% - 18px)'}/>
-                </DataContainer>
-                <CardPicture src={card_pic} alt="demo cart picture" />
-                <Button buttonType={'submit'}
-                        buttonText={'Сохранить'}
-                        isButtonDisabled={!cardName || !cardNumber || !expiryDate || !cvc}/>
-              </ProfileForm>
+              <Form
+                onSubmit={this.onProfileSubmit}
+                validate={() => {
+                  const errors = {};
+
+                  !cardName && (errors.email = 'Введите имя владельца карты');
+                  !cardNumber && (errors.name = 'Введите ваше имя');
+                  !expiryDate && (errors.password = 'Введите дату окончания действия карты');
+                  !cvc && (errors.password = 'Введите cvc-код');
+
+                  return errors
+                }}
+                render={({ handleSubmit }) => (
+                  <ProfileForm onSubmit={handleSubmit}>
+                    <DataContainer>
+                      <Field name="cardName"
+                             component={InputAdapter}
+                             inputType={'text'}
+                             inputName={'cardName'}
+                             labelText={'Имя владельца'}
+                             placeholderText={'Loft'}
+                             currentValue={cardName}
+                             onInputChange={this.onInputChange}/>
+                      <Field name="cardNumber"
+                             component={InputAdapter}
+                             inputType={'text'}
+                             inputName={'cardNumber'}
+                             labelText={'Номер карты'}
+                             placeholderText={'5545 2300 3432 4521'}
+                             currentValue={cardNumber}
+                             onInputChange={this.onInputChange}/>
+                      <Field name="expiryDate"
+                             component={InputAdapter}
+                             inputType={'text'}
+                             inputName={'expiryDate'}
+                             labelText={'MM/YY'}
+                             placeholderText={'05/08'}
+                             currentValue={expiryDate}
+                             onInputChange={this.onInputChange}
+                             customWidth={'calc(50% - 18px)'}/>
+                      <Field name="cvc"
+                             component={InputAdapter}
+                             inputType={'text'}
+                             inputName={'cvc'}
+                             labelText={'CVC'}
+                             placeholderText={'667'}
+                             currentValue={cvc}
+                             onInputChange={this.onInputChange}
+                             customWidth={'calc(50% - 18px)'}/>
+                    </DataContainer>
+                    <CardPicture src={card_pic} alt="demo cart picture" />
+                    <Button buttonType={'submit'}
+                            buttonText={'Сохранить'}
+                            isButtonDisabled={!cardName || !cardNumber || !expiryDate || !cvc}/>
+                  </ProfileForm>
+                )}
+              />
             </>
             ) : (
               <>

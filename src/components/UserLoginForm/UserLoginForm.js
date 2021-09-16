@@ -3,16 +3,17 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Link, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
+import { Form, Field } from 'react-final-form';
 
 import { authenticate } from '../../store/actions/auth';
 import { getIsLoggedIn } from '../../store/reducers/auth';
 import { compose } from '../HocUtils/compose';
 
-import { Input } from '../Input/Input';
+import { InputAdapter } from '../Input/Input';
 import { Button } from '../Button/Button';
 
 const AuthForm = styled.form`
-  padding: 72px 112px;
+  padding: 86px 112px 72px;
   width: 580px;
   display: flex;
   flex-direction: column;
@@ -66,39 +67,57 @@ class UserLoginForm extends Component {
     });
   }
 
+  onSubmitForm = () => {
+    this.props.authenticate(this.state.email, this.state.password);
+    this.props.history.push('/');
+  };
+
   render() {
-    const { authenticate } = this.props;
     const { email, password } = this.state;
-    const onSubmitForm = (e) => {
-      e.preventDefault();
-      authenticate(email, password);
-      this.props.history.push('/');
-    };
 
     return (
-      <AuthForm onSubmit={onSubmitForm}>
-        <Input inputType={'email'}
-               inputName={'email'}
-               labelText={'Email'}
-               placeholderText={'mail@mail.ru'}
-               currentValue={email}
-               onInputChange={this.onInputChange} />
-        <Input inputType={'password'}
-               inputName={'password'}
-               labelText={'Пароль'}
-               placeholderText={'*************'}
-               currentValue={password}
-               onInputChange={this.onInputChange} />
-        <RestorePassword>
-          Забыли пароль?
-        </RestorePassword>
-        <Button buttonType={'submit'}
-                buttonText={'Войти'}
-                isButtonDisabled={!email || !password}/>
-        <FormTypeChange>
-          Новый пользователь? <FormTypeChangeBtn to="/registration">Регистрация</FormTypeChangeBtn>
-        </FormTypeChange>
-      </AuthForm>
+      <Form
+        onSubmit={this.onSubmitForm}
+        validate={() => {
+          const errors = {};
+
+          !email && (errors.email = 'Введите e-mail');
+          !email.includes('@') && (errors.email = 'Введите корректный e-mail');
+          !password && (errors.password = 'Введите пароль');
+          password.length < 3 && (errors.password = 'Пароль должен быть не менее 3-х символов');
+
+          return errors
+        }}
+        render={({ handleSubmit }) => (
+          <AuthForm onSubmit={handleSubmit}>
+            <Field name="email"
+                   component={InputAdapter}
+                   inputType={'email'}
+                   inputName={'email'}
+                   labelText={'Email'}
+                   placeholderText={'mail@mail.ru'}
+                   currentValue={email}
+                   onInputChange={this.onInputChange} />
+            <Field name="password"
+                   component={InputAdapter}
+                   inputType={'password'}
+                   inputName={'password'}
+                   labelText={'Пароль'}
+                   placeholderText={'*************'}
+                   currentValue={password}
+                   onInputChange={this.onInputChange} />
+            <RestorePassword>
+              Забыли пароль?
+            </RestorePassword>
+            <Button buttonType={'submit'}
+                    buttonText={'Войти'}
+                    isButtonDisabled={!email || !password}/>
+            <FormTypeChange>
+              Новый пользователь? <FormTypeChangeBtn to="/registration">Регистрация</FormTypeChangeBtn>
+            </FormTypeChange>
+          </AuthForm>
+        )}
+      />
     );
   }
 }

@@ -18,6 +18,7 @@ import { ProfilePageWithProfileDataAndAuth } from './components/Pages/Profile/Pr
 const GlobalStyle = createGlobalStyle`
   * {
     box-sizing: border-box;
+    transition: all .2s;
   }
   body {
     margin: 0;
