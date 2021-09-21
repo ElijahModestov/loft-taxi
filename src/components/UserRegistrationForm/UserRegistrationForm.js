@@ -3,16 +3,17 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Link, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
+import { Form, Field } from 'react-final-form';
 
 import { register } from '../../store/actions/auth';
+import { getIsLoggedIn } from '../../store/reducers/auth';
 import { compose } from '../HocUtils/compose';
 
-import { Input } from '../Input/Input';
+import { InputAdapter } from '../Input/Input';
 import { Button } from '../Button/Button';
-import {getIsLoggedIn} from "../../store/reducers/auth";
 
 const AuthForm = styled.form`
-  padding: 72px 112px;
+  padding: 86px 112px 72px;
   width: 580px;
   display: flex;
   flex-direction: column;
@@ -56,46 +57,67 @@ class UserRegistrationForm extends Component {
     });
   }
 
-  render() {
-    const { register } = this.props;
+  onSubmitForm = () => {
     const { email, password, name } = this.state;
-    const onSubmitForm = (e) => {
-      e.preventDefault();
+    const firstName = name.replace(/ [\s\S]+/, '');
+    const lastName = name.replace(/[^ ]+ /, '');
 
-      const firstName = name.replace(/ [\s\S]+/, '');
-      const lastName = name.replace(/[^ ]+ /, '');
+    this.props.register(email, password, firstName, lastName);
+    this.props.history.push('/');
+  }
 
-      register(email, password, firstName, lastName);
-      this.props.history.push('/');
-    };
+  render() {
+    const { email, password, name } = this.state;
 
     return (
-      <AuthForm onSubmit={onSubmitForm}>
-        <Input inputType={'email'}
-               inputName={'email'}
-               labelText={'Email*'}
-               placeholderText={'mail@mail.ru'}
-               currentValue={email}
-               onInputChange={this.onInputChange} />
-        <Input inputType={'text'}
-               inputName={'name'}
-               labelText={'Как вас зовут?*'}
-               placeholderText={'Петр Александрович'}
-               currentValue={name}
-               onInputChange={this.onInputChange} />
-        <Input inputType={'password'}
-               inputName={'password'}
-               labelText={'Придумайте пароль*'}
-               placeholderText={'*************'}
-               currentValue={password}
-               onInputChange={this.onInputChange} />
-        <Button buttonType={'submit'}
-                buttonText={'Зарегистрироваться'}
-                isButtonDisabled={!email || !name || !password } />
-        <FormTypeChange>
-          Новый пользователь? <FormTypeChangeBtn to="/login">Войти</FormTypeChangeBtn>
-        </FormTypeChange>
-      </AuthForm>
+      <Form
+        onSubmit={this.onSubmitForm}
+        validate={() => {
+          const errors = {};
+
+          !email && (errors.email = 'Введите e-mail');
+          !email.includes('@') && (errors.email = 'Введите корректный e-mail');
+          !name && (errors.name = 'Введите ваше имя');
+          !password && (errors.password = 'Введите пароль');
+          password.length < 3 && (errors.password = 'Пароль должен быть не менее 3-х символов');
+
+          return errors
+        }}
+        render={({ handleSubmit }) => (
+          <AuthForm onSubmit={handleSubmit}>
+            <Field name="email"
+                   component={InputAdapter}
+                   inputType={'email'}
+                   inputName={'email'}
+                   labelText={'Email*'}
+                   placeholderText={'mail@mail.ru'}
+                   currentValue={email}
+                   onInputChange={this.onInputChange} />
+            <Field name="name"
+                   component={InputAdapter}
+                   inputType={'text'}
+                   inputName={'name'}
+                   labelText={'Как вас зовут?*'}
+                   placeholderText={'Петр Александрович'}
+                   currentValue={name}
+                   onInputChange={this.onInputChange} />
+            <Field name="password"
+                   component={InputAdapter}
+                   inputType={'password'}
+                   inputName={'password'}
+                   labelText={'Придумайте пароль*'}
+                   placeholderText={'*************'}
+                   currentValue={password}
+                   onInputChange={this.onInputChange} />
+            <Button buttonType={'submit'}
+                    buttonText={'Зарегистрироваться'}
+                    isButtonDisabled={!email || !name || !password } />
+            <FormTypeChange>
+              Новый пользователь? <FormTypeChangeBtn to="/login">Войти</FormTypeChangeBtn>
+            </FormTypeChange>
+          </AuthForm>
+        )}
+      />
     );
   }
 }

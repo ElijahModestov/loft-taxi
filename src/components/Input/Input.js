@@ -3,8 +3,20 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 const InputContainer = styled.div`
-  margin: 25px 0 0;
+  margin: 11px 0 0;
+  padding: 0 0 14px;
   width: ${props => props.customWidth || '100%' };
+  position: relative;
+`;
+
+const InputError = styled.div`
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  color: #FF0000;
+  font-size: 12px;
+  line-height: 14px;
 `;
 
 const StyledLabel = styled.label`
@@ -12,6 +24,8 @@ const StyledLabel = styled.label`
   flex-direction: column;
   font-size: 16px;
   font-weight: bold;
+  cursor: pointer;
+  color: ${props => props.hasValidationError ? '#FF0000' : 'inherit'}
 `;
 
 const StyledInput = styled.input`
@@ -23,22 +37,39 @@ const StyledInput = styled.input`
   border-bottom: 2px solid #E4E4E4;
   font-size: 18px;
   outline: none;
+  
+  &:focus {
+    border-color: #2D7EF7;
+  }
 `;
 
-export const Input = ({ inputType, inputName, labelText, placeholderText, currentValue,
-                 onInputChange, customWidth, isRequired = true }) => {
+export const InputAdapter = ({ input, meta, ...rest }) => (
+  <Input
+    {...input}
+    {...rest}
+    errorText={meta.touched ? meta.error : ''}
+  />
+)
+
+export const Input = ({ inputType, inputName, labelText, placeholderText,
+                        currentValue, onInputChange, customWidth, isRequired = true,
+                        errorText = '', ...input }) => {
   return (
     <InputContainer customWidth={customWidth}>
-      <StyledLabel>
+      <StyledLabel hasValidationError={errorText !== ''}>
         {labelText}
-        <StyledInput id={inputName}
+        <StyledInput {...input}
+                     id={inputName}
                      name={inputName}
                      type={inputType}
-                     placeholder={placeholderText}
                      value={currentValue}
+                     placeholder={placeholderText}
                      onChange={onInputChange}
                      required={isRequired} />
       </StyledLabel>
+      <InputError>
+        {errorText}
+      </InputError>
     </InputContainer>
   );
 };
@@ -54,5 +85,6 @@ Input.propTypes = {
   ]).isRequired,
   onInputChange: PropTypes.func.isRequired,
   isRequired: PropTypes.bool,
-  customWidth: PropTypes.string
+  customWidth: PropTypes.string,
+  errorText: PropTypes.string
 };

@@ -5,8 +5,6 @@ import { Provider } from 'react-redux';
 import { Router } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
 
-jest.mock('../../Input/Input',
-  () => ({ Input: () => <input type="text" placeholder="some input text"/> }));
 jest.mock('../../Button/Button',
   () => ({ Button: () => <button>Button text</button> }));
 
@@ -30,7 +28,7 @@ describe('ProfilePage', () => {
     };
     const history = createMemoryHistory();
 
-    const { getAllByPlaceholderText, getAllByText } = render(
+    const { getAllByRole, getByText } = render(
       <Router history={history}>
         <Provider store={mockStore}>
           <ProfilePageWithProfileDataAndAuth />
@@ -38,10 +36,9 @@ describe('ProfilePage', () => {
       </Router>
     );
 
-    const inputs = await getAllByPlaceholderText('some input text');
-    const buttons = await getAllByText('Button text');
+    const inputs = await getAllByRole('textbox');
 
     expect(inputs).toHaveLength(4);
-    expect(buttons).toHaveLength(1);
+    expect(getByText('Button text')).toBeInTheDocument();
   });
 });
