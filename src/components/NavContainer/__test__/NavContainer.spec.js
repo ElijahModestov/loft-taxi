@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavContainerWithAuth } from './NavContainer';
+import { NavContainerWithAuth } from '../NavContainer';
 import { render } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { Router } from 'react-router-dom';

@@ -1,6 +1,6 @@
 import React from 'react';
-import { profile } from './profile';
-import { storePaymentData, storePaymentError } from '../actions/profile';
+import { profile } from '../profile';
+import { storePaymentData, storePaymentError } from '../../actions/profile';
 
 const initialState = {
   hasEligiblePayment: false,
@@ -21,17 +21,17 @@ const filledState = {
 
 describe('authReducer', () => {
   it('returns the initial state', () => {
-    expect(profile(initialState, {})).toStrictEqual(initialState);
+    expect(profile(initialState, {})).toEqual(initialState);
   });
   it('stores login data on login', () => {
     expect(profile(initialState, storePaymentData('test_card_name',
       'test_card_number', 'test_expiry_date',
       'test_cvc')))
-      .toStrictEqual(filledState);
+      .toEqual(filledState);
   });
   it('stores error', () => {
     expect(profile(initialState, storePaymentError('test_error')))
-      .toStrictEqual({
+      .toEqual({
         ...initialState,
         error: 'test_error'
       });

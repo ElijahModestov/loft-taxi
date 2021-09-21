@@ -1,7 +1,7 @@
 import React from 'react';
-import { auth } from './auth';
-import { login, logout, storeAuthError } from '../actions/auth';
-import { cacheObject, getCachedObject, removeCachedObject } from '../../caching';
+import { auth } from '../auth';
+import { login, logout, storeAuthError } from '../../actions/auth';
+import { cacheObject, getCachedObject, removeCachedObject } from '../../../caching';
 
 const initialState = {
   isLoggedIn: false,
@@ -24,14 +24,14 @@ const filledState = {
 
 describe('authReducer', () => {
   it('returns the initial state', () => {
-    expect(auth(initialState, {})).toStrictEqual(initialState);
+    expect(auth(initialState, {})).toEqual(initialState);
   });
   it('stores login data on login', () => {
     expect(auth(initialState, login('test_email', 'test_password',
       'test_token', 'test_name', 'test_surname')))
-      .toStrictEqual(filledState);
+      .toEqual(filledState);
 
-    expect(getCachedObject('auth')).toStrictEqual({
+    expect(getCachedObject('auth')).toEqual({
       isLoggedIn: true,
       email: 'test_email',
       token: 'test_token',
@@ -43,12 +43,12 @@ describe('authReducer', () => {
     cacheObject(filledState);
 
     expect(auth(filledState, logout()))
-      .toStrictEqual(initialState);
+      .toEqual(initialState);
     expect(getCachedObject('auth')).toBe(null);
   });
   it('stores error', () => {
     expect(auth(initialState, storeAuthError('test_error')))
-      .toStrictEqual({
+      .toEqual({
         ...initialState,
         error: 'test_error'
       });

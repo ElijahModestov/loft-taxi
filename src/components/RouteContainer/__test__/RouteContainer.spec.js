@@ -1,11 +1,11 @@
 import React from 'react';
-import { RouteContainerWithProfile } from './RouteContainer';
+import { RouteContainerWithProfile } from '../RouteContainer';
 import { render } from '@testing-library/react';
 import { Provider } from 'react-redux';
 
-jest.mock('../Button/Button',
+jest.mock('../../Button/Button',
   () => ({ Button: () => <button>Button text</button> }));
-jest.mock('../Select/Select',
+jest.mock('../../Select/Select',
   () => ({ Select: () => <div>Select container</div> }));
 
 describe('UserLoginFormWithAuth', () => {

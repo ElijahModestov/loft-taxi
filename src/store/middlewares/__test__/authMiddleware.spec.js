@@ -1,13 +1,13 @@
-import { authMiddleware } from './authMiddleware';
-import { authenticate, register } from '../actions/auth';
-import { serverLogin, serverRegistration } from '../../api';
+import { authMiddleware } from '../authMiddleware';
+import { authenticate, register } from '../../actions/auth';
+import { serverLogin, serverRegistration } from '../../../api';
 
 const apiMockResponse = {
   success: true,
   token: 'test_token'
 };
 
-jest.mock('../../api', () => ({
+jest.mock('../../../api', () => ({
   serverLogin: jest.fn(() => apiMockResponse),
   serverRegistration: jest.fn(() => apiMockResponse)
 }));

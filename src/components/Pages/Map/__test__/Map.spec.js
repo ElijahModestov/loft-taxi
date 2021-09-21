@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapPageWithRoute } from './Map';
+import { MapPageWithRoute } from '../Map';
 import { render } from '@testing-library/react';
 import mapboxgl from 'mapbox-gl';
 import { Provider } from 'react-redux';
@@ -13,7 +13,7 @@ jest.mock('mapbox-gl/dist/mapbox-gl', () => ({
     addLayer: jest.fn()
   })),
 }));
-jest.mock('../../RouteContainer/RouteContainer',
+jest.mock('../../../RouteContainer/RouteContainer',
   () => ({ RouteContainerWithProfile: () => <div>Route container content</div> }));
 
 describe('MapContainer', () => {

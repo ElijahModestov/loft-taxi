@@ -1,8 +1,8 @@
 import React from 'react';
-import { UserAuthLayout } from './UserAuthLayout';
+import { UserAuthLayout } from '../UserAuthLayout';
 import { render } from '@testing-library/react';
 
-jest.mock('../LogoContainer/LogoContainer',
+jest.mock('../../LogoContainer/LogoContainer',
   () => ({ LogoContainer: () => <div>Logo container content</div> }));
 
 describe('UserAuthLayout', () => {

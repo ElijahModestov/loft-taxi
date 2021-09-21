@@ -1,10 +1,10 @@
 import React from 'react';
-import { Header } from './Header';
+import { Header } from '../Header';
 import { render } from '@testing-library/react';
 
-jest.mock('../LogoContainer/LogoContainer',
+jest.mock('../../LogoContainer/LogoContainer',
   () => ({ LogoContainer: () => <div>Logo content</div> }));
-jest.mock('../NavContainer/NavContainer',
+jest.mock('../../NavContainer/NavContainer',
   () => ({ NavContainerWithAuth: () => <div>Nav content</div> }));
 describe('Header', () => {
   it('renders correctly', () => {

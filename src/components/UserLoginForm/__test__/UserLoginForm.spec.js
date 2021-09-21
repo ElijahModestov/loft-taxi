@@ -1,5 +1,5 @@
 import React from 'react';
-import { ProfilePageWithProfileDataAndAuth } from './Profile';
+import { UserLoginFormWithAuth } from '../UserLoginForm';
 import { render } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { Router } from 'react-router-dom';
@@ -8,37 +8,25 @@ import { createMemoryHistory } from 'history';
 jest.mock('../../Button/Button',
   () => ({ Button: () => <button>Button text</button> }));
 
-describe('ProfilePage', () => {
-  it('renders correctly', async () => {
+describe('UserLoginFormWithAuth', () => {
+  it('renders correctly',  () => {
     const mockStore = {
-      getState: () => ({
-        auth: {
-          isLoggedIn: false,
-          token: ''
-        },
-        profile: {
-          cardName: '',
-          cardNumber: '',
-          expiryDate: '',
-          cvc: ''
-        }
-      }),
+      getState: () => ({ auth: { isLoggedIn: false }}),
       subscribe: () => {},
       dispatch: () => {}
     };
     const history = createMemoryHistory();
 
-    const { getAllByRole, getByText } = render(
+    const { getByPlaceholderText, getByRole, getByText } = render(
       <Router history={history}>
         <Provider store={mockStore}>
-          <ProfilePageWithProfileDataAndAuth />
+          <UserLoginFormWithAuth/>
         </Provider>
       </Router>
     );
 
-    const inputs = await getAllByRole('textbox');
-
-    expect(inputs).toHaveLength(4);
+    expect(getByRole('textbox')).toBeInTheDocument();
     expect(getByText('Button text')).toBeInTheDocument();
+    expect(getByPlaceholderText('*************')).toBeInTheDocument();
   });
 });
