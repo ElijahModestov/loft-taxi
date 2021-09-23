@@ -1,7 +1,7 @@
 import React from 'react';
 import { auth } from '../auth';
-import { login, logout, storeAuthError } from '../../actions/auth';
-import { cacheObject, getCachedObject, removeCachedObject } from '../../../caching';
+import { loginUser, logoutUser, storeAuthError } from '../../actions/auth';
+import { cacheObject, getCachedObject } from '../../../caching';
 
 const initialState = {
   isLoggedIn: false,
@@ -27,7 +27,7 @@ describe('authReducer', () => {
     expect(auth(initialState, {})).toEqual(initialState);
   });
   it('stores login data on login', () => {
-    expect(auth(initialState, login('test_email', 'test_password',
+    expect(auth(initialState, loginUser('test_email', 'test_password',
       'test_token', 'test_name', 'test_surname')))
       .toEqual(filledState);
 
@@ -42,7 +42,7 @@ describe('authReducer', () => {
   it('restores initial state on logout', () => {
     cacheObject(filledState);
 
-    expect(auth(filledState, logout()))
+    expect(auth(filledState, logoutUser()))
       .toEqual(initialState);
     expect(getCachedObject('auth')).toBe(null);
   });

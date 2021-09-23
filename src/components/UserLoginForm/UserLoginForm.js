@@ -1,15 +1,15 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Link, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { Form, Field } from 'react-final-form';
+import { useForm } from 'react-hook-form';
 
-import { authenticate } from '../../store/actions/auth';
+import { authenticateUser } from '../../store/actions/auth';
 import { getIsLoggedIn } from '../../store/reducers/auth';
 import { compose } from '../HocUtils/compose';
 
-import { InputAdapter } from '../Input/Input';
+import { Input } from '../Input/Input';
 import { Button } from '../Button/Button';
 
 const AuthForm = styled.form`
@@ -49,88 +49,86 @@ const FormTypeChangeBtn = styled(Link)`
   }
 `;
 
-class UserLoginForm extends Component {
-  state = {
+const UserLoginForm = ({ isLoggedIn, authenticateUser, history }) => {
+  const [auth, setAuth] = useState({
     email: '',
     password: ''
-  }
+  });
+  const { email, password } = auth;
+  const { register, handleSubmit } = useForm();
 
-  componentDidUpdate() {
-    this.props.isLoggedIn && this.props.history.push('/');
-  }
+  useEffect(() => {
+    isLoggedIn && history.push('/');
+  }, [isLoggedIn, history]);
 
-  onInputChange = (e) => {
+  const onInputChange = (e) => {
     const { name, value } = e.target;
 
-    this.setState({
+    setAuth(auth => ({
+      ...auth,
       [name]: value
-    });
+    }));
   }
 
-  onSubmitForm = () => {
-    this.props.authenticate(this.state.email, this.state.password);
-    this.props.history.push('/');
+  const onSubmitForm = () => {
+    authenticateUser(email, password);
+    history.push('/');
   };
 
-  render() {
-    const { email, password } = this.state;
-
-    return (
-      <Form
-        onSubmit={this.onSubmitForm}
-        validate={() => {
-          const errors = {};
-
-          !email && (errors.email = 'Введите e-mail');
-          !email.includes('@') && (errors.email = 'Введите корректный e-mail');
-          !password && (errors.password = 'Введите пароль');
-          password.length < 3 && (errors.password = 'Пароль должен быть не менее 3-х символов');
-
-          return errors
-        }}
-        render={({ handleSubmit }) => (
-          <AuthForm onSubmit={handleSubmit}>
-            <Field name="email"
-                   component={InputAdapter}
-                   inputType={'email'}
-                   inputName={'email'}
-                   labelText={'Email'}
-                   placeholderText={'mail@mail.ru'}
-                   currentValue={email}
-                   onInputChange={this.onInputChange} />
-            <Field name="password"
-                   component={InputAdapter}
-                   inputType={'password'}
-                   inputName={'password'}
-                   labelText={'Пароль'}
-                   placeholderText={'*************'}
-                   currentValue={password}
-                   onInputChange={this.onInputChange} />
-            <RestorePassword>
-              Забыли пароль?
-            </RestorePassword>
-            <Button buttonType={'submit'}
-                    buttonText={'Войти'}
-                    isButtonDisabled={!email || !password}/>
-            <FormTypeChange>
-              Новый пользователь? <FormTypeChangeBtn to="/registration">Регистрация</FormTypeChangeBtn>
-            </FormTypeChange>
-          </AuthForm>
-        )}
+  return (
+    <AuthForm onSubmit={handleSubmit(onSubmitForm)}>
+      <Input
+        {...register('email')}
+        inputType={'email'}
+        inputName={'email'}
+        labelText={'Email'}
+        placeholderText={'mail@mail.ru'}
+        currentValue={email}
+        onInputChange={onInputChange}
       />
-    );
-  }
+      <Input
+        {...register('password')}
+        inputType={'password'}
+        inputName={'password'}
+        labelText={'Пароль'}
+        placeholderText={'*************'}
+        currentValue={password}
+        onInputChange={onInputChange}
+      />
+      <RestorePassword>
+        Забыли пароль?
+      </RestorePassword>
+      <Button
+        buttonType={'submit'}
+        buttonText={'Войти'}
+        isButtonDisabled={!email || !password}
+      />
+      <FormTypeChange>
+        Новый пользователь? <FormTypeChangeBtn to="/registration">Регистрация</FormTypeChangeBtn>
+      </FormTypeChange>
+    </AuthForm>
+      // validate={() => {
+      //   const errors = {};
+      //
+      //   !email && (errors.email = 'Введите e-mail');
+      //   !email.includes('@') && (errors.email = 'Введите корректный e-mail');
+      //   !password && (errors.password = 'Введите пароль');
+      //   password.length < 3 && (errors.password = 'Пароль должен быть не менее 3-х символов');
+      //
+      //   return errors
+      // }}
+  )
 }
 
 UserLoginForm.propTypes = {
   isLoggedIn: PropTypes.bool.isRequired,
-  authenticate: PropTypes.func.isRequired
+  authenticateUser: PropTypes.func.isRequired
 };
 
 export const UserLoginFormWithAuth = compose(
   withRouter,
   connect(
     (state) => ({ isLoggedIn: getIsLoggedIn(state) }),
-    { authenticate }
+    { authenticateUser }
   )
 )(UserLoginForm);

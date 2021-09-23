@@ -1,5 +1,5 @@
 import { authMiddleware } from '../authMiddleware';
-import { authenticate, register } from '../../actions/auth';
+import { authenticateUser, registerUser } from '../../actions/auth';
 import { serverLogin, serverRegistration } from '../../../api';
 
 const apiMockResponse = {
@@ -15,7 +15,7 @@ jest.mock('../../../api', () => ({
 describe('authMiddleware', () => {
   afterAll(jest.clearAllMocks);
 
-  describe('#AUTHENTICATE', () => {
+  describe('#AUTHENTICATE_USER', () => {
     describe('with correct credentials', () => {
       it('authenticates through api', async () => {
         serverLogin.mockImplementation(async () => apiMockResponse);
@@ -23,11 +23,11 @@ describe('authMiddleware', () => {
         const next = jest.fn();
 
         await authMiddleware({ dispatch })(next)(
-          authenticate('test_login', 'test_password')
+          authenticateUser('test_login', 'test_password')
         );
         expect(serverLogin).toBeCalledWith('test_login', 'test_password');
         expect(dispatch).toBeCalledWith({
-          type: 'LOGIN',
+          type: 'LOGIN_USER',
           payload: {
             email: 'test_login',
             name: '',
@@ -45,24 +45,24 @@ describe('authMiddleware', () => {
         const next = jest.fn();
 
         await authMiddleware({ dispatch })(next)(
-          authenticate('test_login', 'test_password')
+          authenticateUser('test_login', 'test_password')
         );
         expect(dispatch).not.toBeCalled();
       });
     });
   });
-  describe('#REGISTER', () => {
+  describe('#REGISTER_USER', () => {
     it('registers through api', async () => {
       serverRegistration.mockImplementation(async () => apiMockResponse);
       const dispatch = jest.fn();
       const next = jest.fn();
 
       await authMiddleware({ dispatch })(next)(
-        register('test_email', 'test_password', 'test_name', 'test_surname')
+        registerUser('test_email', 'test_password', 'test_name', 'test_surname')
       );
       expect(serverRegistration).toBeCalledWith('test_email', 'test_password', 'test_name', 'test_surname');
       expect(dispatch).toBeCalledWith({
-        type: 'LOGIN',
+        type: 'LOGIN_USER',
         payload: {
           email: 'test_email',
           name: 'test_name',

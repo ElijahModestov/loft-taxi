@@ -1,5 +1,5 @@
 import { takeEvery, call, put } from 'redux-saga/effects';
-import { AUTHENTICATE, REGISTER, login, storeAuthError } from '../actions/auth';
+import { AUTHENTICATE_USER, REGISTER_USER, loginUser, storeAuthError } from '../actions/auth';
 import { serverLogin, serverRegistration } from '../../api';
 
 export function* authenticateSaga(action) {
@@ -7,7 +7,7 @@ export function* authenticateSaga(action) {
   const { success, token = '', error } = yield call(serverLogin, email, password);
 
   if (success) {
-    yield put(login(email, password, token));
+    yield put(loginUser(email, password, token));
   }
   if (error) {
     yield put(storeAuthError(error));
@@ -20,7 +20,7 @@ export function* registerSaga(action) {
     email, password, name, surname);
 
   if (success) {
-    yield put(login(email, password, token, name, surname));
+    yield put(loginUser(email, password, token, name, surname));
   }
   if (error) {
     yield put(storeAuthError(error));
@@ -28,6 +28,6 @@ export function* registerSaga(action) {
 }
 
 export function* authSaga() {
-  yield takeEvery(AUTHENTICATE, authenticateSaga);
-  yield takeEvery(REGISTER, registerSaga);
+  yield takeEvery(AUTHENTICATE_USER, authenticateSaga);
+  yield takeEvery(REGISTER_USER, registerSaga);
 }

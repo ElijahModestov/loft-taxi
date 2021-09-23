@@ -1,20 +1,20 @@
-export const LOGIN = 'LOGIN';
-export const LOGOUT = 'LOGOUT';
-export const AUTHENTICATE = 'AUTHENTICATE';
-export const REGISTER = 'REGISTER';
+export const LOGIN_USER = 'LOGIN_USER';
+export const LOGOUT_USER = 'LOGOUT_USER';
+export const AUTHENTICATE_USER = 'AUTHENTICATE_USER';
+export const REGISTER_USER = 'REGISTER_USER';
 export const STORE_AUTH_ERROR = 'STORE_AUTH_ERROR';
 
-export const login = (email, password, token, name = '', surname = '') => ({
-  type: LOGIN,
+export const loginUser = (email, password, token, name = '', surname = '') => ({
+  type: LOGIN_USER,
   payload: { email, password, name, surname, token }
 });
-export const logout = () => ({ type: LOGOUT });
-export const authenticate = (email, password) => ({
-  type: AUTHENTICATE,
+export const logoutUser = () => ({ type: LOGOUT_USER });
+export const authenticateUser = (email, password) => ({
+  type: AUTHENTICATE_USER,
   payload: { email, password }
 });
-export const register = (email, password, name, surname) => ({
-  type: REGISTER,
+export const registerUser = (email, password, name, surname) => ({
+  type: REGISTER_USER,
   payload: { email, password, name, surname }
 });
 export const storeAuthError = (error) => ({

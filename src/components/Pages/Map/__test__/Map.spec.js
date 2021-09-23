@@ -10,7 +10,8 @@ jest.mock('mapbox-gl/dist/mapbox-gl', () => ({
     flyTo: jest.fn(),
     getLayer: jest.fn(),
     addSource: jest.fn(),
-    addLayer: jest.fn()
+    addLayer: jest.fn(),
+    on: jest.fn()
   })),
 }));
 jest.mock('../../../RouteContainer/RouteContainer',
@@ -23,7 +24,8 @@ describe('MapContainer', () => {
       flyTo: jest.fn(),
       getLayer: jest.fn(),
       addSource: jest.fn(),
-      addLayer: jest.fn()
+      addLayer: jest.fn(),
+      on: jest.fn()
     });
 
     const mockStore = {
@@ -40,7 +42,7 @@ describe('MapContainer', () => {
 
     expect(mapboxgl.Map).toHaveBeenCalledWith({
       container: getByTestId('map'),
-      style: 'mapbox://styles/mapbox/streets-v9',
+      style: 'mapbox://styles/mapbox/streets-v11',
       center: [30.0609, 59.9311],
       zoom: 9
     });

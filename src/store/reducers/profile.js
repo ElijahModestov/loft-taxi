@@ -27,7 +27,7 @@ export function profile (state = initialState, action) {
       const { error } = action.payload;
 
       return {
-        ...state,
+        ...initialState,
         error
       }
     }

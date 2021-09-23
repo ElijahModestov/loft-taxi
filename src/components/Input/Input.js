@@ -43,36 +43,31 @@ const StyledInput = styled.input`
   }
 `;
 
-export const InputAdapter = ({ input, meta, ...rest }) => (
-  <Input
-    {...input}
-    {...rest}
-    errorText={meta.touched ? meta.error : ''}
-  />
-)
-
-export const Input = ({ inputType, inputName, labelText, placeholderText,
-                        currentValue, onInputChange, customWidth, isRequired = true,
-                        errorText = '', ...input }) => {
+export const Input = React.forwardRef(({
+  inputType, inputName, labelText, placeholderText,
+  currentValue, onInputChange, customWidth, isRequired = true,
+  errorText = '' }, ref) => {
   return (
     <InputContainer customWidth={customWidth}>
       <StyledLabel hasValidationError={errorText !== ''}>
         {labelText}
-        <StyledInput {...input}
-                     id={inputName}
-                     name={inputName}
-                     type={inputType}
-                     value={currentValue}
-                     placeholder={placeholderText}
-                     onChange={onInputChange}
-                     required={isRequired} />
+        <StyledInput
+          id={inputName}
+          name={inputName}
+          type={inputType}
+          value={currentValue}
+          placeholder={placeholderText}
+          onChange={onInputChange}
+          required={isRequired}
+          ref={ref}
+        />
       </StyledLabel>
       <InputError>
         {errorText}
       </InputError>
     </InputContainer>
   );
-};
+});
 
 Input.propTypes = {
   inputType: PropTypes.string.isRequired,
