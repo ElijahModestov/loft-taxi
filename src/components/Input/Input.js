@@ -45,8 +45,8 @@ const StyledInput = styled.input`
 
 export const Input = React.forwardRef(({
   inputType, inputName, labelText, placeholderText,
-  currentValue, onInputChange, customWidth, isRequired = true,
-  errorText = '' }, ref) => {
+  onInputChange, customWidth, isRequired = true,
+  errorText = '', ...rest }, ref) => {
   return (
     <InputContainer customWidth={customWidth}>
       <StyledLabel hasValidationError={errorText !== ''}>
@@ -55,11 +55,10 @@ export const Input = React.forwardRef(({
           id={inputName}
           name={inputName}
           type={inputType}
-          value={currentValue}
           placeholder={placeholderText}
-          onChange={onInputChange}
           required={isRequired}
           ref={ref}
+          {...rest}
         />
       </StyledLabel>
       <InputError>
@@ -74,11 +73,6 @@ Input.propTypes = {
   inputName: PropTypes.string.isRequired,
   labelText: PropTypes.string.isRequired,
   placeholderText: PropTypes.string.isRequired,
-  currentValue: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.number
-  ]).isRequired,
-  onInputChange: PropTypes.func.isRequired,
   isRequired: PropTypes.bool,
   customWidth: PropTypes.string,
   errorText: PropTypes.string

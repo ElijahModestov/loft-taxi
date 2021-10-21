@@ -3,7 +3,9 @@ import PropTypes from 'prop-types';
 import styled from "styled-components";
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
 
 import { updatePaymentData } from '../../../store/actions/profile';
 import { getCardName, getCardNumber, getExpiryDate, getCvc } from '../../../store/reducers/profile';
@@ -90,56 +92,63 @@ const LinkButton = styled(Link)`
   }
 `;
 
+const normalizeCardNumber = (value) => {
+  return value.replace(/\s/g, '').match(/.{1,4}/g)?.join(' ').substr(0, 19) || '';
+};
+
+const normalizeExpiryDate = (value) => {
+  return value.length === 3 && !value.includes('/') ?
+    `${value.substr(0, 2)}/${value.substr(2, 1)}` :
+    value.length > 5 ? value.substr(0, 5) : value;
+};
+
+const normalizeCvc = (value) => {
+  return value.length > 3 ? Math.floor(value / 10) : value;
+}
+
 const ProfilePage = ({ storedCardName, storedCardNumber, storedExpiryDate,
                        storedCvc, token, updatePaymentData }) => {
-  const [paymentData, setPaymentData] = useState({
-    isProfileChanged: false,
-    cardName: '',
-    cardNumber: '',
-    expiryDate: '',
-    cvc: ''
-  })
-  const { isProfileChanged, cardName, cardNumber, expiryDate, cvc } = paymentData;
-  const { register, handleSubmit } = useForm();
+  const [isProfileChanged, setIsProfileChanged] = useState(false);
+  const validationSchema = yup.object({
+    cardName: yup.string()
+      .required('Введите имя владельца карты'),
+    cardNumber: yup.string()
+      .required('Введите номер карты')
+      .min(3, 'Пароль должен содержать минимум 3 символа'),
+    expiryDate: yup.string()
+      .required('Введите дату окончания действия карты'),
+    cvc: yup.number()
+      .typeError('Укажите 3 цифры')
+      .required('Укажите 3 цифры')
+      .min(3, 'Укажите 3 цифры')
+  });
+  const formOptions = {
+    mode: 'onChange',
+    resolver: yupResolver(validationSchema),
+    defaultValues: {cardName: '', cardNumber: '', expiryDate: '', cvc: ''}
+  };
+  const {
+    control,
+    handleSubmit,
+    getValues,
+    setValue,
+    trigger,
+    formState: { errors, isValid }
+  } = useForm(formOptions);
+  const [cardName, cardNumber, expiryDate, cvc] = getValues(['cardName', 'cardNumber', 'expiryDate', 'cvc']);
 
   useEffect(() => {
-    setPaymentData((paymentData) => ({
-      ...paymentData,
-      cardName: storedCardName,
-      cardNumber: storedCardNumber,
-      expiryDate: storedExpiryDate,
-      cvc: storedCvc
-    }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    setValue('cardName', storedCardName);
+    setValue('cardNumber', storedCardNumber);
+    setValue('expiryDate', storedExpiryDate);
+    setValue('cvc', storedCvc);
+    setTimeout(() => trigger(), 1000);
+  }, [trigger, setValue, storedCardName, storedCardNumber, storedExpiryDate, storedCvc]);
 
   const onProfileSubmit = () => {
-    setPaymentData((paymentData) => ({
-      ...paymentData,
-      isProfileChanged: true
-    }));
+    setIsProfileChanged(true);
     updatePaymentData(cardName, cardNumber, expiryDate, cvc, token);
   };
-
-  const onInputChange = (e) => {
-    const { name, value } = e.target;
-
-    setPaymentData((paymentData) => ({
-      ...paymentData,
-      [name]: value
-    }));
-  };
-
-  // validate={() => {
-  //   const errors = {};
-  //
-  //   !cardName && (errors.email = 'Введите имя владельца карты');
-  //   !cardNumber && (errors.name = 'Введите ваше имя');
-  //   !expiryDate && (errors.password = 'Введите дату окончания действия карты');
-  //   !cvc && (errors.password = 'Введите cvc-код');
-  //
-  //   return errors
-  // }}
 
   return (
     <PageContainer>
@@ -150,50 +159,82 @@ const ProfilePage = ({ storedCardName, storedCardNumber, storedExpiryDate,
             <ProfileText>Введите платежные данные</ProfileText>
             <ProfileForm onSubmit={handleSubmit(onProfileSubmit)}>
               <DataContainer>
-                <Input
-                  {...register('cardName')}
-                  inputType={'text'}
-                  inputName={'cardName'}
-                  labelText={'Имя владельца'}
-                  placeholderText={'Loft'}
-                  currentValue={cardName}
-                  onInputChange={onInputChange}
+                <Controller
+                  name="cardName"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      inputType={'text'}
+                      inputName={'cardName'}
+                      labelText={'Имя владельца'}
+                      placeholderText={'Loft'}
+                      errorText={errors.cardName?.message}
+                    />
+                  )}
                 />
-                <Input
-                  {...register('cardNumber')}
-                  inputType={'text'}
-                  inputName={'cardNumber'}
-                  labelText={'Номер карты'}
-                  placeholderText={'5545 2300 3432 4521'}
-                  currentValue={cardNumber}
-                  onInputChange={onInputChange}
+                <Controller
+                  name="cardNumber"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      inputType={'text'}
+                      inputName={'cardNumber'}
+                      labelText={'Номер карты'}
+                      placeholderText={'5545 2300 3432 4521'}
+                      errorText={errors.cardNumber?.message}
+                      onChange={(event) => {
+                        const { value } = event.target;
+                        setValue('cardNumber', normalizeCardNumber(value));
+                      }}
+                    />
+                  )}
                 />
-                <Input
-                  {...register('expiryDate')}
-                  inputType={'text'}
-                  inputName={'expiryDate'}
-                  labelText={'MM/YY'}
-                  placeholderText={'05/08'}
-                  currentValue={expiryDate}
-                  onInputChange={onInputChange}
-                  customWidth={'calc(50% - 18px)'}
+                <Controller
+                  name="expiryDate"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      inputType={'text'}
+                      inputName={'cardNumber'}
+                      labelText={'MM/YY'}
+                      placeholderText={'05/08'}
+                      customWidth={'calc(50% - 18px)'}
+                      errorText={errors.expiryDate?.message}
+                      onChange={(event) => {
+                        const { value } = event.target;
+                        setValue('expiryDate', normalizeExpiryDate(value));
+                      }}
+                    />
+                  )}
                 />
-                <Input
-                  {...register('cvc')}
-                  inputType={'text'}
-                  inputName={'cvc'}
-                  labelText={'CVC'}
-                  placeholderText={'667'}
-                  currentValue={cvc}
-                  onInputChange={onInputChange}
-                  customWidth={'calc(50% - 18px)'}
+                <Controller
+                  name="cvc"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      inputType={'text'}
+                      inputName={'cvc'}
+                      labelText={'CVC'}
+                      placeholderText={'667'}
+                      customWidth={'calc(50% - 18px)'}
+                      errorText={errors.cvc?.message}
+                      onChange={(event) => {
+                        const { value } = event.target;
+                        setValue('cvc', normalizeCvc(value));
+                      }}
+                    />
+                  )}
                 />
               </DataContainer>
               <CardPicture src={card_pic} alt="demo cart picture" />
               <Button
                 buttonType={'submit'}
                 buttonText={'Сохранить'}
-                isButtonDisabled={!cardName || !cardNumber || !expiryDate || !cvc}
+                isButtonDisabled={!isValid}
               />
             </ProfileForm>
           </>

@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Link, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
 
 import { registerUser } from '../../store/actions/auth';
 import { getIsLoggedIn } from '../../store/reducers/auth';
@@ -39,26 +41,32 @@ const FormTypeChangeBtn = styled(Link)`
 `;
 
 const UserRegistrationForm = ({ isLoggedIn, registerUser, history }) => {
-  const [auth, setAuth] = useState({
-    email: '',
-    password: '',
-    name: ''
+  const validationSchema = yup.object({
+    email: yup.string()
+      .required('Введите ваш e-mail')
+      .email('Введите корректный e-mail'),
+    name: yup.string()
+      .required('Введите ваше имя и фамилию'),
+    password: yup.string()
+      .required('Введите ваш пароль')
+      .min(3, 'Пароль должен содержать минимум 3 символа')
   });
-  const { email, password, name } = auth;
-  const { register, handleSubmit } = useForm();
+  const formOptions = {
+    mode: 'onChange',
+    resolver: yupResolver(validationSchema),
+    defaultValues: {email: '', name: '', password: ''}
+  };
+  const {
+    control,
+    handleSubmit,
+    getValues,
+    formState: { errors, isValid }
+  } = useForm(formOptions);
+  const [email, name, password] = getValues(['email', 'name', 'password']);
 
   useEffect(() => {
     isLoggedIn && history.push('/');
   }, [isLoggedIn, history])
-
-  const onInputChange = (e) => {
-    const { name, value } = e.target;
-
-    setAuth((auth) => ({
-      ...auth,
-      [name]: value
-    }));
-  }
 
   const onSubmitForm = () => {
     const firstName = name.replace(/ [\s\S]+/, '');
@@ -68,51 +76,54 @@ const UserRegistrationForm = ({ isLoggedIn, registerUser, history }) => {
     history.push('/');
   }
 
-  // validate={() => {
-  //   const errors = {};
-  //
-  //   !email && (errors.email = 'Введите e-mail');
-  //   !email.includes('@') && (errors.email = 'Введите корректный e-mail');
-  //   !name && (errors.name = 'Введите ваше имя');
-  //   !password && (errors.password = 'Введите пароль');
-  //   password.length < 3 && (errors.password = 'Пароль должен быть не менее 3-х символов');
-  //
-  //   return errors
-  // }}
-
   return (
     <AuthForm onSubmit={handleSubmit(onSubmitForm)}>
-      <Input
-        {...register('email')}
-        inputType={'email'}
-        inputName={'email'}
-        labelText={'Email*'}
-        placeholderText={'mail@mail.ru'}
-        currentValue={email}
-        onInputChange={onInputChange}
+      <Controller
+        name="email"
+        control={control}
+        render={({ field }) => (
+          <Input
+            {...field}
+            inputType={'text'}
+            inputName={'email'}
+            labelText={'Email*'}
+            placeholderText={'mail@mail.ru'}
+            errorText={errors.email?.message}
+          />
+        )}
       />
-      <Input
-        {...register('name')}
-        inputType={'text'}
-        inputName={'name'}
-        labelText={'Как вас зовут?*'}
-        placeholderText={'Петр Александрович'}
-        currentValue={name}
-        onInputChange={onInputChange}
+      <Controller
+        name="name"
+        control={control}
+        render={({ field }) => (
+          <Input
+            {...field}
+            inputType={'text'}
+            inputName={'name'}
+            labelText={'Как вас зовут?*'}
+            placeholderText={'*************'}
+            errorText={errors.name?.message}
+          />
+        )}
       />
-      <Input
-        {...register('password')}
-        inputType={'password'}
-        inputName={'password'}
-        labelText={'Придумайте пароль*'}
-        placeholderText={'*************'}
-        currentValue={password}
-        onInputChange={onInputChange}
+      <Controller
+        name="password"
+        control={control}
+        render={({ field }) => (
+          <Input
+            {...field}
+            inputType={'password'}
+            inputName={'password'}
+            labelText={'Придумайте пароль'}
+            placeholderText={'*************'}
+            errorText={errors.password?.message}
+          />
+        )}
       />
       <Button
         buttonType={'submit'}
         buttonText={'Зарегистрироваться'}
-        isButtonDisabled={!email || !name || !password }
+        isButtonDisabled={!isValid}
       />
       <FormTypeChange>
         Новый пользователь? <FormTypeChangeBtn to="/login">Войти</FormTypeChangeBtn>

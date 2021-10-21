@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Link, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
 
 import { authenticateUser } from '../../store/actions/auth';
 import { getIsLoggedIn } from '../../store/reducers/auth';
@@ -50,25 +52,30 @@ const FormTypeChangeBtn = styled(Link)`
 `;
 
 const UserLoginForm = ({ isLoggedIn, authenticateUser, history }) => {
-  const [auth, setAuth] = useState({
-    email: '',
-    password: ''
+  const validationSchema = yup.object({
+    email: yup.string()
+      .required('Введите ваш e-mail')
+      .email('Введите корректный e-mail'),
+    password: yup.string()
+      .required('Введите ваш пароль')
+      .min(3, 'Пароль должен содержать минимум 3 символа')
   });
-  const { email, password } = auth;
-  const { register, handleSubmit } = useForm();
+  const formOptions = {
+    mode: 'onChange',
+    resolver: yupResolver(validationSchema),
+    defaultValues: {email: '', password: ''}
+  };
+  const {
+    control,
+    handleSubmit,
+    getValues,
+    formState: { errors, isValid }
+  } = useForm(formOptions);
+  const [email, password] = getValues(['email', 'password']);
 
   useEffect(() => {
     isLoggedIn && history.push('/');
   }, [isLoggedIn, history]);
-
-  const onInputChange = (e) => {
-    const { name, value } = e.target;
-
-    setAuth(auth => ({
-      ...auth,
-      [name]: value
-    }));
-  }
 
   const onSubmitForm = () => {
     authenticateUser(email, password);
@@ -77,23 +84,33 @@ const UserLoginForm = ({ isLoggedIn, authenticateUser, history }) => {
 
   return (
     <AuthForm onSubmit={handleSubmit(onSubmitForm)}>
-      <Input
-        {...register('email')}
-        inputType={'email'}
-        inputName={'email'}
-        labelText={'Email'}
-        placeholderText={'mail@mail.ru'}
-        currentValue={email}
-        onInputChange={onInputChange}
+      <Controller
+        name="email"
+        control={control}
+        render={({ field }) => (
+          <Input
+            {...field}
+            inputType={'text'}
+            inputName={'email'}
+            labelText={'Email'}
+            placeholderText={'mail@mail.ru'}
+            errorText={errors.email?.message}
+          />
+        )}
       />
-      <Input
-        {...register('password')}
-        inputType={'password'}
-        inputName={'password'}
-        labelText={'Пароль'}
-        placeholderText={'*************'}
-        currentValue={password}
-        onInputChange={onInputChange}
+      <Controller
+        name="password"
+        control={control}
+        render={({ field }) => (
+          <Input
+            {...field}
+            inputType={'password'}
+            inputName={'password'}
+            labelText={'Пароль'}
+            placeholderText={'*************'}
+            errorText={errors.password?.message}
+          />
+        )}
       />
       <RestorePassword>
         Забыли пароль?
@@ -101,22 +118,12 @@ const UserLoginForm = ({ isLoggedIn, authenticateUser, history }) => {
       <Button
         buttonType={'submit'}
         buttonText={'Войти'}
-        isButtonDisabled={!email || !password}
+        isButtonDisabled={!isValid}
       />
       <FormTypeChange>
         Новый пользователь? <FormTypeChangeBtn to="/registration">Регистрация</FormTypeChangeBtn>
       </FormTypeChange>
     </AuthForm>
-      // validate={() => {
-      //   const errors = {};
-      //
-      //   !email && (errors.email = 'Введите e-mail');
-      //   !email.includes('@') && (errors.email = 'Введите корректный e-mail');
-      //   !password && (errors.password = 'Введите пароль');
-      //   password.length < 3 && (errors.password = 'Пароль должен быть не менее 3-х символов');
-      //
-      //   return errors
-      // }}
   )
 }
 
