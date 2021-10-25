@@ -64,10 +64,28 @@ const DataContainer = styled.div`
   justify-content: space-between;
 `;
 
-const CardPicture = styled.img`
+const CardDemoContainer = styled.div`
   margin: 0 -24px 0 0;
   width: 391px;
   height: 226px;
+  position: relative;
+  background: url(${card_pic}) no-repeat center;
+`;
+
+const CardDemoNumber = styled.div`
+  position: absolute;
+  left: 50px;
+  top: 95px;
+  font-size: 21px;
+  letter-spacing: 0.1px;
+`;
+
+const CardDemoExpiryDate = styled.div`
+  position: absolute;
+  top: 45px;
+  right: 38px;
+  font-size: 12px;
+  letter-spacing: 1px;
 `;
 
 const LinkButton = styled(Link)`
@@ -132,10 +150,13 @@ const ProfilePage = ({ storedCardName, storedCardNumber, storedExpiryDate,
     handleSubmit,
     getValues,
     setValue,
+    watch,
     trigger,
     formState: { errors, isValid }
   } = useForm(formOptions);
-  const [cardName, cardNumber, expiryDate, cvc] = getValues(['cardName', 'cardNumber', 'expiryDate', 'cvc']);
+
+  const watchCardDemoExpiryDate = watch('expiryDate');
+  const watchCardDemoNumber = watch('cardNumber').replace(/\s/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
 
   useEffect(() => {
     setValue('cardName', storedCardName);
@@ -146,6 +167,7 @@ const ProfilePage = ({ storedCardName, storedCardNumber, storedExpiryDate,
   }, [trigger, setValue, storedCardName, storedCardNumber, storedExpiryDate, storedCvc]);
 
   const onProfileSubmit = () => {
+    const [cardName, cardNumber, expiryDate, cvc] = getValues(['cardName', 'cardNumber', 'expiryDate', 'cvc']);
     setIsProfileChanged(true);
     updatePaymentData(cardName, cardNumber, expiryDate, cvc, token);
   };
@@ -230,7 +252,10 @@ const ProfilePage = ({ storedCardName, storedCardNumber, storedExpiryDate,
                   )}
                 />
               </DataContainer>
-              <CardPicture src={card_pic} alt="demo cart picture" />
+              <CardDemoContainer>
+                <CardDemoNumber dangerouslySetInnerHTML={{__html: watchCardDemoNumber}}/>
+                <CardDemoExpiryDate>{watchCardDemoExpiryDate}</CardDemoExpiryDate>
+              </CardDemoContainer>
               <Button
                 buttonType={'submit'}
                 buttonText={'Сохранить'}
