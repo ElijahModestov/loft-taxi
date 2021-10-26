@@ -36,7 +36,8 @@ export function auth (state = combinedState, action) {
         password,
         name,
         surname,
-        token
+        token,
+        error: ''
       }
     }
     case LOGOUT_USER: {

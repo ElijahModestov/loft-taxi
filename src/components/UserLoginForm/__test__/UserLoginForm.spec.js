@@ -11,7 +11,7 @@ jest.mock('../../Button/Button',
 describe('UserLoginFormWithAuth', () => {
   it('renders correctly',  () => {
     const mockStore = {
-      getState: () => ({ auth: { isLoggedIn: false }}),
+      getState: () => ({ auth: { isLoggedIn: false, errorText: '' }}),
       subscribe: () => {},
       dispatch: () => {}
     };

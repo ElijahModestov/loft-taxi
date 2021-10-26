@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Link, withRouter } from 'react-router-dom';
@@ -8,11 +8,12 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 
 import { authenticateUser } from '../../store/actions/auth';
-import { getIsLoggedIn } from '../../store/reducers/auth';
+import { getIsLoggedIn, getAuthError } from '../../store/reducers/auth';
 import { compose } from '../HocUtils/compose';
 
 import { Input } from '../Input/Input';
 import { Button } from '../Button/Button';
+import { Spinner } from '../Spinner/Spinner';
 
 const AuthForm = styled.form`
   padding: 86px 112px 72px;
@@ -51,7 +52,8 @@ const FormTypeChangeBtn = styled(Link)`
   }
 `;
 
-const UserLoginForm = ({ isLoggedIn, authenticateUser, history }) => {
+const UserLoginForm = ({ isLoggedIn, authError, authenticateUser, history }) => {
+  const [isLoading, setIsLoading] = useState(false);
   const validationSchema = yup.object({
     email: yup.string()
       .required('Введите ваш e-mail')
@@ -69,6 +71,7 @@ const UserLoginForm = ({ isLoggedIn, authenticateUser, history }) => {
     control,
     handleSubmit,
     getValues,
+    setError,
     formState: { errors, isValid }
   } = useForm(formOptions);
   const [email, password] = getValues(['email', 'password']);
@@ -77,10 +80,21 @@ const UserLoginForm = ({ isLoggedIn, authenticateUser, history }) => {
     isLoggedIn && history.push('/');
   }, [isLoggedIn, history]);
 
+  useEffect(() => {
+    setIsLoading(false);
+    authError && setError('email', {type: 'string', message: authError});
+  }, [authError, setError, setIsLoading]);
+
   const onSubmitForm = () => {
+    setIsLoading(true);
     authenticateUser(email, password);
-    history.push('/');
   };
+
+  if (isLoading) {
+    return (
+      <Spinner/>
+    );
+  }
 
   return (
     <AuthForm onSubmit={handleSubmit(onSubmitForm)}>
@@ -124,18 +138,19 @@ const UserLoginForm = ({ isLoggedIn, authenticateUser, history }) => {
         Новый пользователь? <FormTypeChangeBtn to="/registration">Регистрация</FormTypeChangeBtn>
       </FormTypeChange>
     </AuthForm>
-  )
+  );
 }
 
 UserLoginForm.propTypes = {
   isLoggedIn: PropTypes.bool.isRequired,
+  authError: PropTypes.string.isRequired,
   authenticateUser: PropTypes.func.isRequired
 };
 
 export const UserLoginFormWithAuth = compose(
   withRouter,
   connect(
-    (state) => ({ isLoggedIn: getIsLoggedIn(state) }),
+    (state) => ({ isLoggedIn: getIsLoggedIn(state), authError: getAuthError(state) }),
     { authenticateUser }
   )
 )(UserLoginForm);

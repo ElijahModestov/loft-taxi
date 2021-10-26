@@ -8,7 +8,9 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 
 import { updatePaymentData } from '../../../store/actions/profile';
-import { getCardName, getCardNumber, getExpiryDate, getCvc } from '../../../store/reducers/profile';
+import {
+  getCardName, getCardNumber, getExpiryDate, getCvc, getProfileError
+} from '../../../store/reducers/profile';
 import { getToken } from '../../../store/reducers/auth';
 
 import { Button } from '../../Button/Button';
@@ -125,16 +127,17 @@ const normalizeCvc = (value) => {
 }
 
 const ProfilePage = ({ storedCardName, storedCardNumber, storedExpiryDate,
-                       storedCvc, token, updatePaymentData }) => {
+                       storedCvc, token, updatePaymentData, profileError }) => {
   const [isProfileChanged, setIsProfileChanged] = useState(false);
   const validationSchema = yup.object({
     cardName: yup.string()
       .required('Введите имя владельца карты'),
     cardNumber: yup.string()
       .required('Введите номер карты')
-      .min(3, 'Пароль должен содержать минимум 3 символа'),
+      .min(19, 'Номер карты должен содержать 16 символов'),
     expiryDate: yup.string()
-      .required('Введите дату окончания действия карты'),
+      .required('Введите дату')
+      .min(5, 'Введите корректную дату'),
     cvc: yup.number()
       .typeError('Укажите 3 цифры')
       .required('Укажите 3 цифры')
@@ -150,13 +153,15 @@ const ProfilePage = ({ storedCardName, storedCardNumber, storedExpiryDate,
     handleSubmit,
     getValues,
     setValue,
+    setError,
     watch,
     trigger,
     formState: { errors, isValid }
   } = useForm(formOptions);
 
-  const watchCardDemoExpiryDate = watch('expiryDate');
   const watchCardDemoNumber = watch('cardNumber').replace(/\s/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
+  const watchCardDemoExpiryDate = watch('expiryDate');
+  const watchCardCvc = watch('cvc');
 
   useEffect(() => {
     setValue('cardName', storedCardName);
@@ -165,6 +170,14 @@ const ProfilePage = ({ storedCardName, storedCardNumber, storedExpiryDate,
     setValue('cvc', storedCvc);
     setTimeout(() => trigger(), 1000);
   }, [trigger, setValue, storedCardName, storedCardNumber, storedExpiryDate, storedCvc]);
+
+  useEffect(() => {
+    trigger();
+  }, [trigger, watchCardDemoExpiryDate, watchCardDemoNumber, watchCardCvc]);
+
+  useEffect(() => {
+    profileError && setError('cardName', {type: 'string', message: profileError});
+  }, [profileError, setError]);
 
   const onProfileSubmit = () => {
     const [cardName, cardNumber, expiryDate, cvc] = getValues(['cardName', 'cardNumber', 'expiryDate', 'cvc']);
@@ -283,7 +296,8 @@ ProfilePage.propTypes = {
   storedExpiryDate: PropTypes.string.isRequired,
   storedCvc: PropTypes.string.isRequired,
   token: PropTypes.string.isRequired,
-  updatePaymentData: PropTypes.func.isRequired
+  updatePaymentData: PropTypes.func.isRequired,
+  profileError: PropTypes.func.isRequired
 };
 
 const mapStateToProps = (state) => ({
@@ -291,7 +305,8 @@ const mapStateToProps = (state) => ({
   storedCardNumber: getCardNumber(state),
   storedExpiryDate: getExpiryDate(state),
   storedCvc: getCvc(state),
-  token: getToken(state)
+  token: getToken(state),
+  profileError: getProfileError(state)
 });
 
 export const ProfilePageWithProfileDataAndAuth = connect(
