@@ -1,16 +1,19 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Link, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { Form, Field } from 'react-final-form';
+import { useForm, Controller } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
 
-import { authenticate } from '../../store/actions/auth';
-import { getIsLoggedIn } from '../../store/reducers/auth';
+import { authenticateUser } from '../../store/actions/auth';
+import { getIsLoggedIn, getAuthError } from '../../store/reducers/auth';
 import { compose } from '../HocUtils/compose';
 
-import { InputAdapter } from '../Input/Input';
+import { Input } from '../Input/Input';
 import { Button } from '../Button/Button';
+import { Spinner } from '../Spinner/Spinner';
 
 const AuthForm = styled.form`
   padding: 86px 112px 72px;
@@ -49,88 +52,105 @@ const FormTypeChangeBtn = styled(Link)`
   }
 `;
 
-class UserLoginForm extends Component {
-  state = {
-    email: '',
-    password: ''
-  }
+const UserLoginForm = ({ isLoggedIn, authError, authenticateUser, history }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const validationSchema = yup.object({
+    email: yup.string()
+      .required('Введите ваш e-mail')
+      .email('Введите корректный e-mail'),
+    password: yup.string()
+      .required('Введите ваш пароль')
+      .min(3, 'Пароль должен содержать минимум 3 символа')
+  });
+  const formOptions = {
+    mode: 'onChange',
+    resolver: yupResolver(validationSchema),
+    defaultValues: {email: '', password: ''}
+  };
+  const {
+    control,
+    handleSubmit,
+    getValues,
+    setError,
+    formState: { errors, isValid }
+  } = useForm(formOptions);
+  const [email, password] = getValues(['email', 'password']);
 
-  componentDidUpdate() {
-    this.props.isLoggedIn && this.props.history.push('/');
-  }
+  useEffect(() => {
+    isLoggedIn && history.push('/');
+  }, [isLoggedIn, history]);
 
-  onInputChange = (e) => {
-    const { name, value } = e.target;
+  useEffect(() => {
+    setIsLoading(false);
+    authError && setError('email', {type: 'string', message: authError});
+  }, [authError, setError, setIsLoading]);
 
-    this.setState({
-      [name]: value
-    });
-  }
-
-  onSubmitForm = () => {
-    this.props.authenticate(this.state.email, this.state.password);
-    this.props.history.push('/');
+  const onSubmitForm = () => {
+    setIsLoading(true);
+    authenticateUser(email, password);
   };
 
-  render() {
-    const { email, password } = this.state;
-
+  if (isLoading) {
     return (
-      <Form
-        onSubmit={this.onSubmitForm}
-        validate={() => {
-          const errors = {};
-
-          !email && (errors.email = 'Введите e-mail');
-          !email.includes('@') && (errors.email = 'Введите корректный e-mail');
-          !password && (errors.password = 'Введите пароль');
-          password.length < 3 && (errors.password = 'Пароль должен быть не менее 3-х символов');
-
-          return errors
-        }}
-        render={({ handleSubmit }) => (
-          <AuthForm onSubmit={handleSubmit}>
-            <Field name="email"
-                   component={InputAdapter}
-                   inputType={'email'}
-                   inputName={'email'}
-                   labelText={'Email'}
-                   placeholderText={'mail@mail.ru'}
-                   currentValue={email}
-                   onInputChange={this.onInputChange} />
-            <Field name="password"
-                   component={InputAdapter}
-                   inputType={'password'}
-                   inputName={'password'}
-                   labelText={'Пароль'}
-                   placeholderText={'*************'}
-                   currentValue={password}
-                   onInputChange={this.onInputChange} />
-            <RestorePassword>
-              Забыли пароль?
-            </RestorePassword>
-            <Button buttonType={'submit'}
-                    buttonText={'Войти'}
-                    isButtonDisabled={!email || !password}/>
-            <FormTypeChange>
-              Новый пользователь? <FormTypeChangeBtn to="/registration">Регистрация</FormTypeChangeBtn>
-            </FormTypeChange>
-          </AuthForm>
-        )}
-      />
+      <Spinner/>
     );
   }
+
+  return (
+    <AuthForm onSubmit={handleSubmit(onSubmitForm)}>
+      <Controller
+        name="email"
+        control={control}
+        render={({ field }) => (
+          <Input
+            {...field}
+            inputType={'text'}
+            inputName={'email'}
+            labelText={'Email'}
+            placeholderText={'mail@mail.ru'}
+            errorText={errors.email?.message}
+          />
+        )}
+      />
+      <Controller
+        name="password"
+        control={control}
+        render={({ field }) => (
+          <Input
+            {...field}
+            inputType={'password'}
+            inputName={'password'}
+            labelText={'Пароль'}
+            placeholderText={'*************'}
+            errorText={errors.password?.message}
+          />
+        )}
+      />
+      <RestorePassword>
+        Забыли пароль?
+      </RestorePassword>
+      <Button
+        buttonType={'submit'}
+        buttonText={'Войти'}
+        isButtonDisabled={!isValid}
+      />
+      <FormTypeChange>
+        Новый пользователь? <FormTypeChangeBtn to="/registration">Регистрация</FormTypeChangeBtn>
+      </FormTypeChange>
+    </AuthForm>
+  );
 }
 
 UserLoginForm.propTypes = {
   isLoggedIn: PropTypes.bool.isRequired,
-  authenticate: PropTypes.func.isRequired
+  authError: PropTypes.string.isRequired,
+  authenticateUser: PropTypes.func.isRequired
 };
 
 export const UserLoginFormWithAuth = compose(
   withRouter,
   connect(
-    (state) => ({ isLoggedIn: getIsLoggedIn(state) }),
-    { authenticate }
+    (state) => ({ isLoggedIn: getIsLoggedIn(state), authError: getAuthError(state) }),
+    { authenticateUser }
   )
 )(UserLoginForm);

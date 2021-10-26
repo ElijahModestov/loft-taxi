@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Link, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import { logout } from '../../store/actions/auth';
+import { logoutUser } from '../../store/actions/auth';
 import { compose } from '../HocUtils/compose';
 
 const NavList = styled.div`
@@ -34,7 +34,7 @@ const NavItemLogout = styled.div`
   }
 `;
 
-const NavContainer = ({ logout, history }) => {
+const NavContainer = ({ logoutUser, history }) => {
   const currentPage = history.location.pathname;
 
   return (
@@ -47,19 +47,19 @@ const NavContainer = ({ logout, history }) => {
                selected={currentPage === '/profile'}>
         Профиль
       </NavItem>
-      <NavItemLogout onClick={logout}>Выйти</NavItemLogout>
+      <NavItemLogout onClick={logoutUser}>Выйти</NavItemLogout>
     </NavList>
   );
 }
 
 NavContainer.propTypes = {
-  logout: PropTypes.func.isRequired
+  logoutUser: PropTypes.func.isRequired
 };
 
 export const NavContainerWithAuth = compose(
   withRouter,
   connect(
     null,
-    { logout }
+    { logoutUser }
   )
 )(NavContainer);

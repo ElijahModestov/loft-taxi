@@ -20,14 +20,15 @@ export function profile (state = initialState, action) {
         cardName,
         cardNumber,
         expiryDate,
-        cvc
+        cvc,
+        error: ''
       }
     }
     case STORE_PAYMENT_ERROR: {
       const { error } = action.payload;
 
       return {
-        ...state,
+        ...initialState,
         error
       }
     }

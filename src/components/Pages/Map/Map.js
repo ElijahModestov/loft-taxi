@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import mapboxgl from 'mapbox-gl';
@@ -8,12 +8,6 @@ import { getRouteData } from '../../../store/reducers/route';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 import { RouteContainerWithProfile } from '../../RouteContainer/RouteContainer';
-
-const mapOptions = {
-  xPosition: 30.0609,
-  yPosition: 59.9311,
-  zoom: 9
-}
 
 const MapContainer = styled.div`
   width: 100%;
@@ -61,36 +55,39 @@ const drawRoute = (map, coordinates) => {
   }
 };
 
-export class MapPage extends Component {
-  componentDidMount() {
+const MapPage = ({ routeData }) => {
+  const [map, setMap] = useState(null);
+  const mapContainer = useRef(null);
+
+  useEffect(() => {
     mapboxgl.accessToken = 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA';
+    const initializeMap = ({ setMap, mapContainer }) => {
+      const map = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: "mapbox://styles/mapbox/streets-v11",
+        center: [30.0609, 59.9311],
+        zoom: 9
+      });
 
-    this.map = new mapboxgl.Map({
-      container: this.mapContainer,
-      style: 'mapbox://styles/mapbox/streets-v9',
-      center: [mapOptions.xPosition, mapOptions.yPosition],
-      zoom: mapOptions.zoom
-    });
-  }
+      map.on("load", () => {
+        setMap(map);
+        map.resize();
+      });
+    };
 
-  componentDidUpdate(prevProps) {
-    if (prevProps.routeData !== this.props.routeData) {
-      drawRoute(this.map, this.props.routeData);
-    }
-  }
+    if (!map) initializeMap({ setMap, mapContainer });
+  }, [map]);
 
-  componentWillUnmount() {
-    this.map.remove();
-  }
+  useEffect(() => {
+    map && routeData.length && drawRoute(map, routeData);
+  }, [map, routeData]);
 
-  render() {
-    return (
-      <MapContainer>
-        <StyledMap ref={el => this.mapContainer = el} data-testid="map"/>
-        <RouteContainerWithProfile />
-      </MapContainer>
-    )
-  }
+  return (
+    <MapContainer>
+      <StyledMap ref={el => mapContainer.current = el} data-testid="map"/>
+      <RouteContainerWithProfile />
+    </MapContainer>
+  )
 }
 
 MapPage.propTypes = {

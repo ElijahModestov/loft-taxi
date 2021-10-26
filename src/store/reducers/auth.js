@@ -1,4 +1,4 @@
-import { LOGIN, LOGOUT, STORE_AUTH_ERROR } from '../actions/auth';
+import { LOGIN_USER, LOGOUT_USER, STORE_AUTH_ERROR } from '../actions/auth';
 import { cacheObject, getCachedObject, removeCachedObject } from '../../caching';
 
 const initialState = {
@@ -18,7 +18,7 @@ const combinedState = {
 
 export function auth (state = combinedState, action) {
   switch (action.type) {
-    case LOGIN: {
+    case LOGIN_USER: {
       const { email, password, token, name, surname } = action.payload;
 
       cacheObject('auth', {
@@ -36,10 +36,11 @@ export function auth (state = combinedState, action) {
         password,
         name,
         surname,
-        token
+        token,
+        error: ''
       }
     }
-    case LOGOUT: {
+    case LOGOUT_USER: {
       removeCachedObject('auth');
 
       return {
@@ -50,7 +51,7 @@ export function auth (state = combinedState, action) {
       const { error } = action.payload;
 
       return {
-        ...state,
+        ...initialState,
         error
       }
     }

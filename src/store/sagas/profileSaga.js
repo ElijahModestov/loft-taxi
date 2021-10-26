@@ -17,9 +17,14 @@ export function* updatePaymentSaga(action) {
 
 export function* fetchPaymentSaga(action) {
   const { token } = action.payload;
-  const { cardName, cardNumber, expiryDate, cvc } = yield call(serverPaymentData, token);
+  const { cardName, cardNumber, expiryDate, cvc, error } = yield call(serverPaymentData, token);
 
-  yield put(storePaymentData(cardName, cardNumber, expiryDate, cvc));
+  if (!error) {
+    yield put(storePaymentData(cardName, cardNumber, expiryDate, cvc));
+  } else {
+    yield put(storePaymentError(error));
+  }
+
 }
 
 export function* profileSaga() {

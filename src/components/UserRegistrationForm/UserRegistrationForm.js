@@ -1,16 +1,19 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Link, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { Form, Field } from 'react-final-form';
+import { useForm, Controller } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
 
-import { register } from '../../store/actions/auth';
-import { getIsLoggedIn } from '../../store/reducers/auth';
+import { registerUser } from '../../store/actions/auth';
+import { getIsLoggedIn, getAuthError } from '../../store/reducers/auth';
 import { compose } from '../HocUtils/compose';
 
-import { InputAdapter } from '../Input/Input';
+import { Input } from '../Input/Input';
 import { Button } from '../Button/Button';
+import {Spinner} from "../Spinner/Spinner";
 
 const AuthForm = styled.form`
   padding: 86px 112px 72px;
@@ -38,99 +41,121 @@ const FormTypeChangeBtn = styled(Link)`
   }
 `;
 
-class UserRegistrationForm extends Component {
-  state = {
-    email: '',
-    password: '',
-    name: ''
-  }
+const UserRegistrationForm = ({ isLoggedIn, authError, registerUser, history }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const validationSchema = yup.object({
+    email: yup.string()
+      .required('Введите ваш e-mail')
+      .email('Введите корректный e-mail'),
+    name: yup.string()
+      .required('Введите ваше имя и фамилию'),
+    password: yup.string()
+      .required('Введите ваш пароль')
+      .min(3, 'Пароль должен содержать минимум 3 символа')
+  });
+  const formOptions = {
+    mode: 'onChange',
+    resolver: yupResolver(validationSchema),
+    defaultValues: {email: '', name: '', password: ''}
+  };
+  const {
+    control,
+    handleSubmit,
+    getValues,
+    setError,
+    formState: { errors, isValid }
+  } = useForm(formOptions);
+  const [email, name, password] = getValues(['email', 'name', 'password']);
 
-  componentDidUpdate() {
-    this.props.isLoggedIn && this.props.history.push('/');
-  }
+  useEffect(() => {
+    isLoggedIn && history.push('/');
+  }, [isLoggedIn, history]);
 
-  onInputChange = (e) => {
-    const { name, value } = e.target;
+  useEffect(() => {
+    setIsLoading(false);
+    authError && setError('email', {type: 'string', message: authError});
+  }, [authError, setError, setIsLoading]);
 
-    this.setState({
-      [name]: value
-    });
-  }
-
-  onSubmitForm = () => {
-    const { email, password, name } = this.state;
+  const onSubmitForm = () => {
     const firstName = name.replace(/ [\s\S]+/, '');
     const lastName = name.replace(/[^ ]+ /, '');
 
-    this.props.register(email, password, firstName, lastName);
-    this.props.history.push('/');
+    setIsLoading(true);
+    registerUser(email, password, firstName, lastName);
   }
 
-  render() {
-    const { email, password, name } = this.state;
-
+  if (isLoading && !authError) {
     return (
-      <Form
-        onSubmit={this.onSubmitForm}
-        validate={() => {
-          const errors = {};
-
-          !email && (errors.email = 'Введите e-mail');
-          !email.includes('@') && (errors.email = 'Введите корректный e-mail');
-          !name && (errors.name = 'Введите ваше имя');
-          !password && (errors.password = 'Введите пароль');
-          password.length < 3 && (errors.password = 'Пароль должен быть не менее 3-х символов');
-
-          return errors
-        }}
-        render={({ handleSubmit }) => (
-          <AuthForm onSubmit={handleSubmit}>
-            <Field name="email"
-                   component={InputAdapter}
-                   inputType={'email'}
-                   inputName={'email'}
-                   labelText={'Email*'}
-                   placeholderText={'mail@mail.ru'}
-                   currentValue={email}
-                   onInputChange={this.onInputChange} />
-            <Field name="name"
-                   component={InputAdapter}
-                   inputType={'text'}
-                   inputName={'name'}
-                   labelText={'Как вас зовут?*'}
-                   placeholderText={'Петр Александрович'}
-                   currentValue={name}
-                   onInputChange={this.onInputChange} />
-            <Field name="password"
-                   component={InputAdapter}
-                   inputType={'password'}
-                   inputName={'password'}
-                   labelText={'Придумайте пароль*'}
-                   placeholderText={'*************'}
-                   currentValue={password}
-                   onInputChange={this.onInputChange} />
-            <Button buttonType={'submit'}
-                    buttonText={'Зарегистрироваться'}
-                    isButtonDisabled={!email || !name || !password } />
-            <FormTypeChange>
-              Новый пользователь? <FormTypeChangeBtn to="/login">Войти</FormTypeChangeBtn>
-            </FormTypeChange>
-          </AuthForm>
-        )}
-      />
+      <Spinner/>
     );
   }
+
+  return (
+    <AuthForm onSubmit={handleSubmit(onSubmitForm)}>
+      <Controller
+        name="email"
+        control={control}
+        render={({ field }) => (
+          <Input
+            {...field}
+            inputType={'text'}
+            inputName={'email'}
+            labelText={'Email*'}
+            placeholderText={'mail@mail.ru'}
+            errorText={errors.email?.message}
+          />
+        )}
+      />
+      <Controller
+        name="name"
+        control={control}
+        render={({ field }) => (
+          <Input
+            {...field}
+            inputType={'text'}
+            inputName={'name'}
+            labelText={'Как вас зовут?*'}
+            placeholderText={'*************'}
+            errorText={errors.name?.message}
+          />
+        )}
+      />
+      <Controller
+        name="password"
+        control={control}
+        render={({ field }) => (
+          <Input
+            {...field}
+            inputType={'password'}
+            inputName={'password'}
+            labelText={'Придумайте пароль'}
+            placeholderText={'*************'}
+            errorText={errors.password?.message}
+          />
+        )}
+      />
+      <Button
+        buttonType={'submit'}
+        buttonText={'Зарегистрироваться'}
+        isButtonDisabled={!isValid}
+      />
+      <FormTypeChange>
+        Новый пользователь? <FormTypeChangeBtn to="/login">Войти</FormTypeChangeBtn>
+      </FormTypeChange>
+    </AuthForm>
+  );
 }
 
 UserRegistrationForm.propTypes = {
   isLoggedIn: PropTypes.bool.isRequired,
-  register: PropTypes.func.isRequired
+  authError: PropTypes.string.isRequired,
+  registerUser: PropTypes.func.isRequired
 };
 
 export const UserRegistrationFormWithAuth = compose(
   withRouter,
   connect(
-    (state) => ({ isLoggedIn: getIsLoggedIn(state) }),
-    { register }
+    (state) => ({ isLoggedIn: getIsLoggedIn(state), authError: getAuthError(state) }),
+    { registerUser }
   )
 )(UserRegistrationForm);

@@ -1,16 +1,20 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import styled from "styled-components";
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Form, Field } from 'react-final-form';
+import { useForm, Controller } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
 
 import { updatePaymentData } from '../../../store/actions/profile';
-import { getCardName, getCardNumber, getExpiryDate, getCvc } from '../../../store/reducers/profile';
+import {
+  getCardName, getCardNumber, getExpiryDate, getCvc, getProfileError
+} from '../../../store/reducers/profile';
 import { getToken } from '../../../store/reducers/auth';
 
 import { Button } from '../../Button/Button';
-import { InputAdapter } from '../../Input/Input';
+import { Input } from '../../Input/Input';
 import bg_map from '../../../assets/bg_map_shadowed.jpg';
 import card_pic from '../../../assets/card.svg';
 
@@ -62,10 +66,28 @@ const DataContainer = styled.div`
   justify-content: space-between;
 `;
 
-const CardPicture = styled.img`
+const CardDemoContainer = styled.div`
   margin: 0 -24px 0 0;
   width: 391px;
   height: 226px;
+  position: relative;
+  background: url(${card_pic}) no-repeat center;
+`;
+
+const CardDemoNumber = styled.div`
+  position: absolute;
+  left: 50px;
+  top: 95px;
+  font-size: 21px;
+  letter-spacing: 0.1px;
+`;
+
+const CardDemoExpiryDate = styled.div`
+  position: absolute;
+  top: 45px;
+  right: 38px;
+  font-size: 12px;
+  letter-spacing: 1px;
 `;
 
 const LinkButton = styled(Link)`
@@ -90,125 +112,182 @@ const LinkButton = styled(Link)`
   }
 `;
 
-export class ProfilePage extends Component {
-  state = {
-    isProfileChanged: false,
-    cardName: '',
-    cardNumber: '',
-    expiryDate: '',
-    cvc: ''
-  }
+const normalizeCardNumber = (value) => {
+  return value.replace(/\s/g, '').match(/.{1,4}/g)?.join(' ').substr(0, 19) || '';
+};
 
-  componentDidMount() {
-    const { storedCardName, storedCardNumber, storedExpiryDate, storedCvc } = this.props;
+const normalizeExpiryDate = (value) => {
+  return value.length === 3 && !value.includes('/') ?
+    `${value.substr(0, 2)}/${value.substr(2, 1)}` :
+    value.length > 5 ? value.substr(0, 5) : value;
+};
 
-    this.setState({
-      cardName: storedCardName,
-      cardNumber: storedCardNumber,
-      expiryDate: storedExpiryDate,
-      cvc: storedCvc
-    });
-  }
+const normalizeCvc = (value) => {
+  return value.length > 3 ? Math.floor(value / 10) : value;
+}
 
-  onProfileSubmit = () => {
-    const { cardName, cardNumber, expiryDate, cvc } = this.state;
-    const { token } = this.props;
+const ProfilePage = ({ storedCardName, storedCardNumber, storedExpiryDate,
+                       storedCvc, token, updatePaymentData, profileError }) => {
+  const [isProfileChanged, setIsProfileChanged] = useState(false);
+  const validationSchema = yup.object({
+    cardName: yup.string()
+      .required('Введите имя владельца карты'),
+    cardNumber: yup.string()
+      .required('Введите номер карты')
+      .min(19, 'Номер карты должен содержать 16 символов'),
+    expiryDate: yup.string()
+      .required('Введите дату')
+      .min(5, 'Введите корректную дату'),
+    cvc: yup.number()
+      .typeError('Укажите 3 цифры')
+      .required('Укажите 3 цифры')
+      .min(3, 'Укажите 3 цифры')
+  });
+  const formOptions = {
+    mode: 'onChange',
+    resolver: yupResolver(validationSchema),
+    defaultValues: {cardName: '', cardNumber: '', expiryDate: '', cvc: ''}
+  };
+  const {
+    control,
+    handleSubmit,
+    getValues,
+    setValue,
+    setError,
+    watch,
+    trigger,
+    formState: { errors, isValid }
+  } = useForm(formOptions);
 
-    this.setState({
-      isProfileChanged: true
-    });
-    this.props.updatePaymentData(cardName, cardNumber, expiryDate, cvc, token);
+  const watchCardDemoNumber = watch('cardNumber').replace(/\s/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
+  const watchCardDemoExpiryDate = watch('expiryDate');
+  const watchCardCvc = watch('cvc');
+
+  useEffect(() => {
+    setValue('cardName', storedCardName);
+    setValue('cardNumber', storedCardNumber);
+    setValue('expiryDate', storedExpiryDate);
+    setValue('cvc', storedCvc);
+    setTimeout(() => trigger(), 1000);
+  }, [trigger, setValue, storedCardName, storedCardNumber, storedExpiryDate, storedCvc]);
+
+  useEffect(() => {
+    trigger();
+  }, [trigger, watchCardDemoExpiryDate, watchCardDemoNumber, watchCardCvc]);
+
+  useEffect(() => {
+    profileError && setError('cardName', {type: 'string', message: profileError});
+  }, [profileError, setError]);
+
+  const onProfileSubmit = () => {
+    const [cardName, cardNumber, expiryDate, cvc] = getValues(['cardName', 'cardNumber', 'expiryDate', 'cvc']);
+    setIsProfileChanged(true);
+    updatePaymentData(cardName, cardNumber, expiryDate, cvc, token);
   };
 
-  onInputChange = (e) => {
-    const { name, value } = e.target;
-
-    this.setState({
-      [name]: value
-    });
-  };
-
-  render() {
-    const { isProfileChanged, cardName, cardNumber, expiryDate, cvc } = this.state;
-
-    return (
-      <PageContainer>
-        <FormContainer>
-          <FormHeader>Профиль</FormHeader>
-          {!isProfileChanged ? (
-            <>
-              <ProfileText>Введите платежные данные</ProfileText>
-              <Form
-                onSubmit={this.onProfileSubmit}
-                validate={() => {
-                  const errors = {};
-
-                  !cardName && (errors.email = 'Введите имя владельца карты');
-                  !cardNumber && (errors.name = 'Введите ваше имя');
-                  !expiryDate && (errors.password = 'Введите дату окончания действия карты');
-                  !cvc && (errors.password = 'Введите cvc-код');
-
-                  return errors
-                }}
-                render={({ handleSubmit }) => (
-                  <ProfileForm onSubmit={handleSubmit}>
-                    <DataContainer>
-                      <Field name="cardName"
-                             component={InputAdapter}
-                             inputType={'text'}
-                             inputName={'cardName'}
-                             labelText={'Имя владельца'}
-                             placeholderText={'Loft'}
-                             currentValue={cardName}
-                             onInputChange={this.onInputChange}/>
-                      <Field name="cardNumber"
-                             component={InputAdapter}
-                             inputType={'text'}
-                             inputName={'cardNumber'}
-                             labelText={'Номер карты'}
-                             placeholderText={'5545 2300 3432 4521'}
-                             currentValue={cardNumber}
-                             onInputChange={this.onInputChange}/>
-                      <Field name="expiryDate"
-                             component={InputAdapter}
-                             inputType={'text'}
-                             inputName={'expiryDate'}
-                             labelText={'MM/YY'}
-                             placeholderText={'05/08'}
-                             currentValue={expiryDate}
-                             onInputChange={this.onInputChange}
-                             customWidth={'calc(50% - 18px)'}/>
-                      <Field name="cvc"
-                             component={InputAdapter}
-                             inputType={'text'}
-                             inputName={'cvc'}
-                             labelText={'CVC'}
-                             placeholderText={'667'}
-                             currentValue={cvc}
-                             onInputChange={this.onInputChange}
-                             customWidth={'calc(50% - 18px)'}/>
-                    </DataContainer>
-                    <CardPicture src={card_pic} alt="demo cart picture" />
-                    <Button buttonType={'submit'}
-                            buttonText={'Сохранить'}
-                            isButtonDisabled={!cardName || !cardNumber || !expiryDate || !cvc}/>
-                  </ProfileForm>
-                )}
+  return (
+    <PageContainer>
+      <FormContainer>
+        <FormHeader>Профиль</FormHeader>
+        {!isProfileChanged ? (
+          <>
+            <ProfileText>Введите платежные данные</ProfileText>
+            <ProfileForm onSubmit={handleSubmit(onProfileSubmit)}>
+              <DataContainer>
+                <Controller
+                  name="cardName"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      inputType={'text'}
+                      inputName={'cardName'}
+                      labelText={'Имя владельца'}
+                      placeholderText={'Loft'}
+                      errorText={errors.cardName?.message}
+                    />
+                  )}
+                />
+                <Controller
+                  name="cardNumber"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      inputType={'text'}
+                      inputName={'cardNumber'}
+                      labelText={'Номер карты'}
+                      placeholderText={'5545 2300 3432 4521'}
+                      errorText={errors.cardNumber?.message}
+                      onChange={(event) => {
+                        const { value } = event.target;
+                        setValue('cardNumber', normalizeCardNumber(value));
+                      }}
+                    />
+                  )}
+                />
+                <Controller
+                  name="expiryDate"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      inputType={'text'}
+                      inputName={'cardNumber'}
+                      labelText={'MM/YY'}
+                      placeholderText={'05/08'}
+                      customWidth={'calc(50% - 18px)'}
+                      errorText={errors.expiryDate?.message}
+                      onChange={(event) => {
+                        const { value } = event.target;
+                        setValue('expiryDate', normalizeExpiryDate(value));
+                      }}
+                    />
+                  )}
+                />
+                <Controller
+                  name="cvc"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      inputType={'text'}
+                      inputName={'cvc'}
+                      labelText={'CVC'}
+                      placeholderText={'667'}
+                      customWidth={'calc(50% - 18px)'}
+                      errorText={errors.cvc?.message}
+                      onChange={(event) => {
+                        const { value } = event.target;
+                        setValue('cvc', normalizeCvc(value));
+                      }}
+                    />
+                  )}
+                />
+              </DataContainer>
+              <CardDemoContainer>
+                <CardDemoNumber dangerouslySetInnerHTML={{__html: watchCardDemoNumber}}/>
+                <CardDemoExpiryDate>{watchCardDemoExpiryDate}</CardDemoExpiryDate>
+              </CardDemoContainer>
+              <Button
+                buttonType={'submit'}
+                buttonText={'Сохранить'}
+                isButtonDisabled={!isValid}
               />
-            </>
-            ) : (
-              <>
-                <ProfileText>
-                  Платежные данные обновлены. Теперь вы можете заказывать такси.
-                </ProfileText>
-                <LinkButton to="/">Перейти на карту</LinkButton>
-              </>
-            )
-          }
-        </FormContainer>
-      </PageContainer>
-    );
-  }
+            </ProfileForm>
+          </>
+        ) : (
+          <>
+            <ProfileText>
+              Платежные данные обновлены. Теперь вы можете заказывать такси.
+            </ProfileText>
+            <LinkButton to="/">Перейти на карту</LinkButton>
+          </>
+        )
+        }
+      </FormContainer>
+    </PageContainer>
+  );
 }
 
 ProfilePage.propTypes = {
@@ -217,7 +296,8 @@ ProfilePage.propTypes = {
   storedExpiryDate: PropTypes.string.isRequired,
   storedCvc: PropTypes.string.isRequired,
   token: PropTypes.string.isRequired,
-  updatePaymentData: PropTypes.func.isRequired
+  updatePaymentData: PropTypes.func.isRequired,
+  profileError: PropTypes.func.isRequired
 };
 
 const mapStateToProps = (state) => ({
@@ -225,7 +305,8 @@ const mapStateToProps = (state) => ({
   storedCardNumber: getCardNumber(state),
   storedExpiryDate: getExpiryDate(state),
   storedCvc: getCvc(state),
-  token: getToken(state)
+  token: getToken(state),
+  profileError: getProfileError(state)
 });
 
 export const ProfilePageWithProfileDataAndAuth = connect(
