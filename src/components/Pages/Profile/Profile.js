@@ -297,7 +297,7 @@ ProfilePage.propTypes = {
   storedCvc: PropTypes.string.isRequired,
   token: PropTypes.string.isRequired,
   updatePaymentData: PropTypes.func.isRequired,
-  profileError: PropTypes.func.isRequired
+  profileError: PropTypes.string.isRequired
 };
 
 const mapStateToProps = (state) => ({

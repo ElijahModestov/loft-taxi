@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import PropTypes from 'prop-types';
 import { createGlobalStyle } from 'styled-components';
 import { Switch, Route } from 'react-router-dom';
 import { connect } from 'react-redux';
@@ -28,7 +27,21 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
-const App = ({ isLoggedIn, token, fetchPaymentData, fetchAddressesData }) => {
+type AppProps = {
+  isLoggedIn: boolean,
+  token: string,
+  fetchPaymentData: (token: string) => {
+    type: string,
+    payload: {
+      token: string
+    }
+  },
+  fetchAddressesData: () => {
+    type: string
+  }
+};
+
+const App = ({ isLoggedIn, token, fetchPaymentData, fetchAddressesData }: AppProps) => {
   useEffect(() => {
     isLoggedIn && fetchPaymentData(token) && fetchAddressesData();
   }, [isLoggedIn, token, fetchPaymentData, fetchAddressesData]);
@@ -47,14 +60,7 @@ const App = ({ isLoggedIn, token, fetchPaymentData, fetchAddressesData }) => {
   );
 };
 
-App.propTypes = {
-  isLoggedIn: PropTypes.bool.isRequired,
-  token: PropTypes.string.isRequired,
-  fetchPaymentData: PropTypes.func.isRequired,
-  fetchAddressesData: PropTypes.func.isRequired
-};
-
-const mapStateToProps = state => ({
+const mapStateToProps = (state: object) => ({
   isLoggedIn: getIsLoggedIn(state),
   token: getToken(state)
 });
